@@ -33,6 +33,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
   
   // Collaborative AI Assistant Chat state
   const [isAiChatOpen, setIsAiChatOpen] = useState(false);
+  const [isCatalogMenuOpen, setIsCatalogMenuOpen] = useState(false);
   const [aiChatInput, setAiChatInput] = useState('');
   const [aiChatLogs, setAiChatLogs] = useState<{ sender: 'user' | 'pocketa'; text: string }[]>([
     {
@@ -82,6 +83,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
   // Handle Drag and Drop
   const handleDragStart = (e: React.DragEvent, course: Course, sourceSemesterId: string | 'catalog') => {
     e.dataTransfer.setData('text/plain', course.code);
+    e.dataTransfer.setData('application/json', JSON.stringify({ code: course.code, sourceSemesterId }));
     e.dataTransfer.effectAllowed = 'move';
     setDraggedCourse({ course, sourceSemesterId });
   };
@@ -102,20 +104,28 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
     e.preventDefault();
     setDragOverSemesterId(null);
 
-    let courseToMove = draggedCourse?.course;
+    let courseCode = e.dataTransfer.getData('text/plain');
     let sourceSemId = draggedCourse?.sourceSemesterId;
 
-    if (!courseToMove) {
-      const code = e.dataTransfer.getData('text/plain');
-      if (code) {
-        courseToMove = catalog.find(c => c.code === code);
-        sourceSemId = 'catalog';
-      }
+    if (!courseCode && draggedCourse) {
+      courseCode = draggedCourse.course.code;
     }
 
-    if (!courseToMove) return;
+    try {
+      const jsonData = e.dataTransfer.getData('application/json');
+      if (jsonData) {
+        const parsed = JSON.parse(jsonData);
+        if (parsed.code) courseCode = parsed.code;
+        if (parsed.sourceSemesterId) sourceSemId = parsed.sourceSemesterId;
+      }
+    } catch (err) {
+      // Ignore JSON parse error
+    }
 
-    const course = courseToMove;
+    if (!courseCode) return;
+
+    const course = catalog.find(c => c.code === courseCode) || draggedCourse?.course;
+    if (!course) return;
 
     // Do not allow dropping onto completed semesters
     const targetSem = studyPlan.find(s => s.id === targetSemesterId);
@@ -124,27 +134,31 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
       return;
     }
 
-    // Check if target semester already contains this course
-    if (targetSem.courses.some(c => c.code === course.code)) {
+    // Do nothing if dropped onto the same semester
+    if (sourceSemId === targetSemesterId) {
       setDraggedCourse(null);
       return;
     }
 
     setStudyPlan(prevPlan => {
-      return prevPlan.map(sem => {
-        // Remove from source if moving between uncompleted semesters
-        if (sourceSemId !== 'catalog' && sem.id === sourceSemId && !sem.isCompleted) {
-          return { ...sem, courses: sem.courses.filter(c => c.code !== course.code) };
+      // First remove the course from any uncompleted semesters
+      const cleanedPlan = prevPlan.map(sem => {
+        if (!sem.isCompleted && sem.courses.some(c => c.code === course.code)) {
+          return {
+            ...sem,
+            courses: sem.courses.filter(c => c.code !== course.code)
+          };
         }
-        // If added from catalog, remove from any other uncompleted semester if it was previously placed
-        if (sourceSemId === 'catalog' && !sem.isCompleted && sem.id !== targetSemesterId) {
-          if (sem.courses.some(c => c.code === course.code)) {
-            return { ...sem, courses: sem.courses.filter(c => c.code !== course.code) };
-          }
-        }
-        // Add to target semester
+        return sem;
+      });
+
+      // Add to the target semester
+      return cleanedPlan.map(sem => {
         if (sem.id === targetSemesterId) {
-          return { ...sem, courses: [...sem.courses, course] };
+          return {
+            ...sem,
+            courses: [...sem.courses, course]
+          };
         }
         return sem;
       });
@@ -158,16 +172,19 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
     setStudyPlan(prevPlan => {
       const targetSem = prevPlan.find(s => s.id === semesterId);
       if (!targetSem || targetSem.isCompleted) return prevPlan;
-      if (targetSem.courses.some(c => c.code === course.code)) return prevPlan;
 
-      return prevPlan.map(sem => {
-        // Remove from any other uncompleted semester first if already present
-        if (!sem.isCompleted && sem.id !== semesterId) {
-          if (sem.courses.some(c => c.code === course.code)) {
-            return { ...sem, courses: sem.courses.filter(c => c.code !== course.code) };
-          }
+      // Remove course from any existing uncompleted semester
+      const cleanedPlan = prevPlan.map(sem => {
+        if (!sem.isCompleted && sem.courses.some(c => c.code === course.code)) {
+          return { ...sem, courses: sem.courses.filter(c => c.code !== course.code) };
         }
+        return sem;
+      });
+
+      // Add to target semester if not already present
+      return cleanedPlan.map(sem => {
         if (sem.id === semesterId) {
+          if (sem.courses.some(c => c.code === course.code)) return sem;
           return { ...sem, courses: [...sem.courses, course] };
         }
         return sem;
@@ -237,84 +254,80 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
     }
   };
 
-  // Filter Catalog Courses
-  const filteredCatalog = catalog.filter(c => {
-    const matchesSearch = c.code.toLowerCase().includes(searchTerm.toLowerCase()) || c.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCat =
-      selectedCategory === 'ALL' ? true :
-      selectedCategory === 'Not Taken' ? (c.grade === 'Not Taken' || !getPlannedSemester(c.code)) :
-      c.category === selectedCategory;
-    return matchesSearch && matchesCat;
-  });
+  // Check if a course is taken
+  const isCourseTaken = (c: Course) => {
+    if (c.grade && c.grade !== 'Not Taken') return true;
+    return studyPlan.some(sem => sem.isCompleted && sem.courses.some(sc => sc.code === c.code));
+  };
+
+  // Check if a course is Capstone
+  const isCapstoneCourse = (c: Course) => {
+    if (c.category === 'Capstone') return true;
+    if (c.code === 'COMP4913') return true;
+    if (c.title.toLowerCase().includes('capstone')) return true;
+    return false;
+  };
+
+  // Filter Catalog Courses (excludes capstone, includes selected & taken courses at the bottom)
+  const filteredCatalog = catalog
+    .filter(c => {
+      if (isCapstoneCourse(c)) return false;
+
+      const matchesSearch = c.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            c.title.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCat = selectedCategory === 'ALL' ? true : c.category === selectedCategory;
+      return matchesSearch && matchesCat;
+    })
+    .sort((a, b) => {
+      const aSelected = isCourseTaken(a) || !!getPlannedSemester(a.code);
+      const bSelected = isCourseTaken(b) || !!getPlannedSemester(b.code);
+      if (!aSelected && bSelected) return -1;
+      if (aSelected && !bSelected) return 1;
+      return 0;
+    });
 
   return (
     <div className="space-y-8 animate-fade-in pb-16">
-      {/* Top Banner & Control Bar */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center space-x-2">
-            <Calendar className="w-5 h-5 text-indigo-600" />
-            <h2 className="text-xl font-extrabold text-slate-900">Study Planning Workspace</h2>
-            <span className="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full font-semibold border border-indigo-200">
-              Interactive Planner
-            </span>
-          </div>
-          <p className="text-xs text-slate-500 mt-1">
-            Drag and drop courses between semesters. PockeTA personalizes course descriptions based on your career goals and alerts you of prerequisite dependencies.
-          </p>
-        </div>
+      {/* Main Full-Width 8-Semester Interactive Grid Grouped by Year */}
+      <div className="w-full space-y-8">
+          {[1, 2, 3, 4].map((yearNumber) => {
+            const yearSemesters = studyPlan.filter((s) => s.year === yearNumber);
+            const totalYearCredits = yearSemesters.reduce(
+              (sum, sem) => sum + sem.courses.reduce((cSum, c) => cSum + c.credits, 0),
+              0
+            );
+            const isYearCompleted = yearSemesters.every((s) => s.isCompleted);
+            const hasCurrentTerm = yearSemesters.some((s) => s.isCurrent);
 
-        {/* Controls: Personalized Toggle & Collaborative AI Assistant Button */}
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Personalized Toggle Button */}
-          <button
-            id="toggle-personalized-desc-btn"
-            onClick={() => setUsePersonalized(!usePersonalized)}
-            className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border ${
-              usePersonalized
-                ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
-            }`}
-          >
-            <Sparkles className={`w-4 h-4 ${usePersonalized ? 'text-amber-300 animate-pulse' : 'text-slate-400'}`} />
-            <span>
-              {usePersonalized ? 'PockeTA Personalized Descriptions ON' : 'Standard Catalog Descriptions'}
-            </span>
-          </button>
+            return (
+              <div key={yearNumber} className="space-y-4">
+                {/* Year Header */}
+                <div className="flex items-center justify-between border-b border-slate-200 pb-3 pt-1">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900 flex items-center space-x-2">
+                      <span>Year {yearNumber}</span>
+                      {isYearCompleted && (
+                        <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full font-semibold">
+                          Completed Year
+                        </span>
+                      )}
+                      {hasCurrentTerm && (
+                        <span className="text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-0.5 rounded-full font-semibold">
+                          Current Academic Year
+                        </span>
+                      )}
+                    </h3>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs font-semibold text-slate-600 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full">
+                      {totalYearCredits} Credits Total
+                    </span>
+                  </div>
+                </div>
 
-          {/* AI Collaborative Assistant Button */}
-          <button
-            id="open-collaborative-ai-btn"
-            onClick={() => setIsAiChatOpen(!isAiChatOpen)}
-            className="flex items-center space-x-2 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold transition-colors"
-          >
-            <MessageSquare className="w-4 h-4 text-indigo-600" />
-            <span>PockeTA Co-Pilot</span>
-          </button>
-
-          {/* Reset Plan Button */}
-          <button
-            id="reset-official-plan-btn"
-            onClick={() => {
-              setStudyPlan(INITIAL_SEMESTER_PLANS);
-              localStorage.setItem('pocketa_study_plan_v3', JSON.stringify(INITIAL_SEMESTER_PLANS));
-            }}
-            className="flex items-center space-x-1.5 px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-semibold transition-colors"
-            title="Reset study plan to official curriculum"
-          >
-            <RefreshCw className="w-3.5 h-3.5 text-rose-600" />
-            <span>Reset Official Plan</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Main Grid: Study Plan Semesters + Proactive Suggestions & Catalog */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        
-        {/* Left 3 Cols: 8-Semester Interactive Grid */}
-        <div className="lg:col-span-3 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {studyPlan.map((sem) => {
+                {/* Semesters Grid for Year {yearNumber} */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {yearSemesters.map((sem) => {
               const termCredits = sem.courses.reduce((sum, c) => sum + c.credits, 0);
               const isOverloaded = termCredits > 18;
               const isUnderloaded = termCredits < 12 && !sem.isCompleted;
@@ -401,7 +414,10 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
                             >
                               <div className="flex items-start justify-between gap-2">
                                 <div>
-                                  <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                                  <div className="flex items-center space-x-1.5 flex-wrap gap-y-1">
+                                    {!sem.isCompleted && (
+                                      <GripVertical className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 shrink-0 cursor-grab active:cursor-grabbing" title="Drag to move between semesters" />
+                                    )}
                                     <span className="font-bold text-xs text-indigo-600 font-mono">
                                       {course.code}
                                     </span>
@@ -435,7 +451,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
                                 {!sem.isCompleted && (
                                   <button
                                     onClick={() => handleRemoveCourse(sem.id, course.code)}
-                                    className="p-1 text-slate-400 hover:text-rose-600 rounded-md hover:bg-slate-200 transition-colors opacity-0 group-hover:opacity-100"
+                                    className="p-1 text-slate-400 hover:text-rose-600 rounded-md hover:bg-slate-200 transition-colors opacity-0 group-hover:opacity-100 shrink-0"
                                     title="Remove from term"
                                   >
                                     <Trash2 className="w-3.5 h-3.5" />
@@ -489,165 +505,252 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
             })}
           </div>
         </div>
+      );
+    })}
+  </div>
 
-        {/* Right Col: Proactive Suggestions + Course Repository */}
-        <div className="space-y-6">
-          
-          {/* Proactive PockeTA Suggestions Box */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <div className="flex items-center space-x-2">
-                <Sparkles className="w-4 h-4 text-indigo-600" />
-                <h3 className="text-sm font-bold text-slate-900">Proactive Suggestions</h3>
-              </div>
-              <span className="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-semibold border border-indigo-200">
-                PockeTA AI
-              </span>
-            </div>
+      {/* Floating Edge Trigger Button for Course Repository Side Menu Drawer */}
+      <button
+        id="edge-catalog-drawer-trigger-btn"
+        onClick={() => setIsCatalogMenuOpen(!isCatalogMenuOpen)}
+        className="fixed right-0 top-1/2 -translate-y-1/2 bg-indigo-600 hover:bg-indigo-700 text-white py-4 px-2.5 rounded-l-2xl shadow-2xl z-40 flex flex-col items-center space-y-2 text-xs font-bold transition-all cursor-pointer border-l border-t border-b border-indigo-500"
+        title="Toggle Course Repository Side Menu"
+      >
+        <Layers className="w-5 h-5 text-amber-300 animate-pulse" />
+        <span className="[writing-mode:vertical-lr] rotate-180 tracking-wider text-[11px] font-mono uppercase">
+          Course Catalog
+        </span>
+      </button>
 
-            <p className="text-xs text-slate-500">
-              PockeTA analyzes your study plan against your goal: <i>"{profile.careerGoals.slice(0, 50)}..."</i>
-            </p>
-
-            <div className="space-y-3">
-              {suggestions.map((sug) => (
-                <div
-                  key={sug.id}
-                  className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2 hover:border-indigo-300 transition-colors"
-                >
-                  <div className="flex items-start justify-between gap-1">
-                    <h4 className="text-xs font-bold text-indigo-700 leading-snug">
-                      {sug.title}
-                    </h4>
-                  </div>
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    {sug.reason}
-                  </p>
-                  <button
-                    onClick={() => onApplySuggestion(sug)}
-                    className="w-full mt-2 py-1.5 px-3 bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white border border-indigo-200 hover:border-indigo-600 rounded-lg text-xs font-semibold transition-all flex items-center justify-center space-x-1"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Apply Modification to Plan</span>
-                  </button>
-                </div>
-              ))}
+      {/* Course Repository Slide-Out Side Menu Drawer */}
+      <div
+        className={`fixed top-0 right-0 h-full w-80 sm:w-96 bg-white shadow-2xl border-l border-slate-200 z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${
+          isCatalogMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        {/* Drawer Header */}
+        <div className="p-4 border-b border-slate-200 bg-slate-900 text-white flex items-center justify-between shrink-0">
+          <div className="flex items-center space-x-2">
+            <Layers className="w-4 h-4 text-indigo-400" />
+            <div>
+              <h3 className="text-xs font-bold text-white">Course Repository Side Menu</h3>
+              <p className="text-[10px] text-slate-400">Drag courses directly onto any semester</p>
             </div>
           </div>
+          <div className="flex items-center space-x-1">
+            <button
+              onClick={() => setIsAiChatOpen(!isAiChatOpen)}
+              className="p-1.5 text-indigo-300 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+              title="Open PockeTA Co-Pilot"
+            >
+              <MessageSquare className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => {
+                setStudyPlan(INITIAL_SEMESTER_PLANS);
+                localStorage.setItem('pocketa_study_plan_v3', JSON.stringify(INITIAL_SEMESTER_PLANS));
+              }}
+              className="p-1.5 text-rose-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+              title="Reset official plan"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setIsCatalogMenuOpen(false)}
+              className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+              title="Close menu"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
 
-          {/* Course Repository Search & Drag Palette */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
-            <div className="flex items-center space-x-2 pb-2 border-b border-slate-100">
-              <Layers className="w-4 h-4 text-indigo-600" />
-              <h3 className="text-sm font-bold text-slate-900">Course Repository</h3>
-            </div>
+        {/* Filter & Search Controls */}
+        <div className="p-4 border-b border-slate-100 bg-slate-50 space-y-3 shrink-0">
+          {/* Category Filters (Capstone & Taken removed) */}
+          <div className="flex flex-wrap gap-1">
+            {['ALL', 'Core', 'Elective', 'General Education', 'WIE'].map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`text-[10px] px-2.5 py-1 rounded-md font-medium transition-colors cursor-pointer ${
+                  selectedCategory === cat
+                    ? 'bg-indigo-600 text-white font-semibold'
+                    : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
 
-            {/* Category Filters */}
-            <div className="flex flex-wrap gap-1">
-              {['ALL', 'Not Taken', 'Core', 'Elective', 'General Education', 'Capstone', 'WIE'].map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`text-[10px] px-2 py-1 rounded-md font-medium transition-colors ${
-                    selectedCategory === cat
-                      ? 'bg-indigo-600 text-white font-semibold'
-                      : 'bg-slate-100 text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-slate-400" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search available courses..."
+              className="w-full bg-white border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+          </div>
+        </div>
 
-            {/* Search Input */}
-            <div className="relative">
-              <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search catalog by code or title..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              />
-            </div>
+        {/* Course Cards List (Draggable, Taken Courses Excluded, Capstone Excluded) */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {/* AI Suggestions Section - Highlighted Draggable Items with Explanation */}
+          {suggestions.length > 0 && (
+            <div className="space-y-2.5 pb-3 border-b border-slate-200">
+              <div className="flex items-center space-x-1.5 px-0.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse shrink-0" />
+                <h4 className="text-[11px] font-extrabold text-amber-900 uppercase tracking-wider">
+                  AI Suggested Recommendations (Draggable)
+                </h4>
+              </div>
 
-            {/* Course List Items */}
-            <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
-              {filteredCatalog.map((course) => {
-                const plannedSem = getPlannedSemester(course.code);
+              {suggestions.map((sug) => {
+                const course = sug.suggestedCourse || catalog.find(c => c.code === sug.id || sug.title.includes(c.code));
+                const plannedSem = course ? getPlannedSemester(course.code) : null;
+                const taken = course ? isCourseTaken(course) : false;
+                const isSelectedOrTaken = taken || !!plannedSem;
 
                 return (
                   <div
-                    key={course.code}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, course, 'catalog')}
-                    className="bg-slate-50 border border-slate-200 rounded-xl p-3 cursor-grab active:cursor-grabbing hover:border-indigo-400 hover:bg-white hover:shadow-md transition-all group relative"
+                    key={sug.id}
+                    draggable={course && !isSelectedOrTaken ? true : false}
+                    onDragStart={(e) => course && !isSelectedOrTaken && handleDragStart(e, course, 'catalog')}
+                    className={`bg-gradient-to-br from-amber-50 via-amber-50/80 to-indigo-50/40 border-2 border-amber-300/90 rounded-xl p-3 shadow-sm space-y-2 transition-all hover:border-amber-400 hover:shadow-md ${
+                      isSelectedOrTaken
+                        ? 'opacity-60 cursor-not-allowed select-none'
+                        : 'cursor-grab active:cursor-grabbing'
+                    }`}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-1.5">
-                        <GripVertical className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 shrink-0" />
-                        <span className="font-mono text-xs font-bold text-indigo-600">
-                          {course.code}
-                        </span>
-                        {course.grade && course.grade !== 'Not Taken' ? (
-                          <span className={`text-[10px] px-1.5 py-0.2 rounded font-bold ${
-                            course.grade === 'A' || course.grade === 'A-'
-                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                              : course.grade.startsWith('B')
-                              ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                              : course.grade.startsWith('C')
-                              ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                              : 'bg-indigo-100 text-indigo-800 border border-indigo-200'
-                          }`}>
-                            {course.grade}
-                          </span>
-                        ) : (
-                          <span className="text-[10px] px-1.5 py-0.2 rounded font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-                            Not Taken
-                          </span>
+                      <span className="text-xs font-extrabold text-slate-900 flex items-center space-x-1.5">
+                        {course && !isSelectedOrTaken && (
+                          <GripVertical className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                         )}
-                      </div>
-                      <span className="text-[10px] text-slate-600 bg-slate-200 px-1.5 py-0.5 rounded font-medium">
-                        {course.credits} Cr
+                        <Lightbulb className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                        <span>{sug.title}</span>
+                      </span>
+                      <span className="text-[10px] font-bold text-amber-800 bg-amber-200/80 px-2 py-0.5 rounded-full shrink-0">
+                        Suggested
                       </span>
                     </div>
 
-                    <div className="text-xs font-semibold text-slate-800 mt-1">
-                      {course.title}
+                    <div className="text-[11px] text-slate-700 leading-relaxed bg-white/90 p-2.5 rounded-lg border border-amber-200/70 shadow-2xs">
+                      <span className="text-[10px] font-extrabold text-amber-900 uppercase block mb-0.5">
+                        Explanation:
+                      </span>
+                      {sug.reason}
                     </div>
 
-                    <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-slate-100">
-                      <div className="text-[10px] text-slate-500 truncate max-w-[150px]">
-                        Prereqs: {course.prerequisites.join(', ') || 'None'}
-                      </div>
-
-                      {plannedSem ? (
-                        <span className="text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-200 px-1.5 py-0.5 rounded font-medium">
-                          In {plannedSem.term}
+                    {course && !isSelectedOrTaken && (
+                      <div className="flex items-center justify-between pt-1 border-t border-amber-200/60 text-[11px]">
+                        <span className="text-amber-900 font-semibold text-[10px] flex items-center space-x-1">
+                          <Move className="w-3 h-3 text-amber-600" />
+                          <span>Drag to semester card or:</span>
                         </span>
-                      ) : (
-                        <select
-                          onChange={(e) => {
-                            if (e.target.value) {
-                              handleAddCourseToSemester(course, e.target.value);
-                              e.target.value = '';
-                            }
-                          }}
-                          defaultValue=""
-                          className="text-[10px] bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold border border-indigo-200 rounded px-1.5 py-0.5 outline-none cursor-pointer"
+                        <button
+                          onClick={() => onApplySuggestion(sug)}
+                          className="text-[10px] font-bold bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
                         >
-                          <option value="" disabled>+ Add to...</option>
-                          {studyPlan.filter(s => !s.isCompleted).map(s => (
-                            <option key={s.id} value={s.id}>{s.label.split(' ')[0]}</option>
-                          ))}
-                        </select>
-                      )}
-                    </div>
+                          Apply
+                        </button>
+                      </div>
+                    )}
+
+                    {isSelectedOrTaken && (
+                      <div className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 p-1.5 rounded-lg text-center">
+                        ✓ Added to Plan ({plannedSem?.label.split(' ')[0]} {plannedSem?.label.split(' ')[1]})
+                      </div>
+                    )}
                   </div>
                 );
               })}
             </div>
-          </div>
+          )}
+
+          {filteredCatalog.length === 0 ? (
+            <div className="text-center py-12 text-xs text-slate-400 font-medium">
+              No available courses found.
+            </div>
+          ) : (
+            filteredCatalog.map((course) => {
+              const plannedSem = getPlannedSemester(course.code);
+              const taken = isCourseTaken(course);
+              const isSelectedOrTaken = taken || !!plannedSem;
+
+              return (
+                <div
+                  key={course.code}
+                  draggable={!isSelectedOrTaken}
+                  onDragStart={(e) => !isSelectedOrTaken && handleDragStart(e, course, 'catalog')}
+                  className={`border rounded-xl p-3 transition-all relative ${
+                    isSelectedOrTaken
+                      ? 'bg-slate-100/80 border-slate-200 opacity-60 cursor-not-allowed select-none'
+                      : 'bg-slate-50 border-slate-200 cursor-grab active:cursor-grabbing hover:border-indigo-400 hover:bg-white hover:shadow-md group'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-1.5">
+                      {!isSelectedOrTaken && (
+                        <GripVertical className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 shrink-0" />
+                      )}
+                      <span className={`font-mono text-xs font-bold ${isSelectedOrTaken ? 'text-slate-500' : 'text-indigo-600'}`}>
+                        {course.code}
+                      </span>
+                      {taken ? (
+                        <span className="text-[10px] px-1.5 py-0.2 rounded font-semibold bg-slate-200 text-slate-700 border border-slate-300">
+                          Taken ({course.grade || 'Passed'})
+                        </span>
+                      ) : plannedSem ? (
+                        <span className="text-[10px] px-1.5 py-0.2 rounded font-semibold bg-indigo-100 text-indigo-800 border border-indigo-200">
+                          Selected in {plannedSem.term}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] px-1.5 py-0.2 rounded font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                          Available
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-slate-600 bg-slate-200 px-1.5 py-0.5 rounded font-medium">
+                      {course.credits} Cr
+                    </span>
+                  </div>
+
+                  <div className={`text-xs font-semibold mt-1 ${isSelectedOrTaken ? 'text-slate-500' : 'text-slate-800'}`}>
+                    {course.title}
+                  </div>
+
+                  <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-slate-200/60">
+                    <div className="text-[10px] text-slate-500 truncate max-w-[140px]">
+                      Prereqs: {course.prerequisites.join(', ') || 'None'}
+                    </div>
+
+                    {!isSelectedOrTaken && (
+                      <select
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            handleAddCourseToSemester(course, e.target.value);
+                            e.target.value = '';
+                          }
+                        }}
+                        defaultValue=""
+                        className="text-[10px] bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold border border-indigo-200 rounded px-1.5 py-0.5 outline-none cursor-pointer"
+                      >
+                        <option value="" disabled>+ Add to...</option>
+                        {studyPlan.filter(s => !s.isCompleted).map(s => (
+                          <option key={s.id} value={s.id}>{s.label.split(' ')[0]}</option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 

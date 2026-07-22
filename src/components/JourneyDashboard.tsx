@@ -151,135 +151,141 @@ export const JourneyDashboard: React.FC<JourneyDashboardProps> = ({
         </div>
       </div>
 
-      {/* Main Grid: Search & Advising Q&A + Career Aspirations Panel */}
+      {/* Main Grid: Advising Chat Box + Career Aspirations Panel */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* Left 2 Cols: Search Bar & Academic Advising Interaction */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Advising Search Bar Box */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
-            <div className="flex items-center space-x-2 text-sm font-bold text-slate-800">
-              <MessageSquare className="w-4 h-4 text-indigo-600" />
-              <span>Ask PockeTA an Academic Advising Question</span>
-            </div>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleAskQuestion();
-              }}
-              className="relative flex items-center"
-            >
-              <Search className="absolute left-4 w-5 h-5 text-slate-400" />
-              <input
-                id="advising-search-input"
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Ask about prerequisites, electives, WIE placement, or study plans..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-28 py-3.5 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-inner"
-              />
-              <button
-                id="ask-advising-btn"
-                type="submit"
-                disabled={isLoading || !query.trim()}
-                className="absolute right-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg shadow-sm transition-all disabled:opacity-40 flex items-center space-x-1.5"
-              >
-                {isLoading ? (
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <>
-                    <span>Ask PockeTA</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </>
-                )}
-              </button>
-            </form>
-
-            {/* Inspiration Prompt Chips */}
-            <div className="space-y-2 pt-3 border-t border-slate-100">
-              <div className="flex items-center space-x-1.5 text-xs text-slate-400 font-bold uppercase tracking-widest">
-                <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
-                <span>Inspired Inquiries:</span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {SAMPLE_ADVISING_QUESTIONS.map((q, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleAskQuestion(q)}
-                    className="p-3 bg-white border border-slate-200 hover:border-indigo-200 text-slate-700 hover:text-indigo-600 rounded-xl transition-colors cursor-pointer text-left group flex flex-col justify-between"
-                  >
-                    <span className="text-xs font-medium leading-relaxed">"{q}"</span>
-                    <div className="mt-2 flex items-center text-[11px] text-indigo-600 font-semibold">
-                      <span>Ask question</span>
-                      <ArrowRight className="w-3 h-3 ml-1 transition-transform group-hover:translate-x-1" />
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Advising Conversation Stream */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+        {/* Left 2 Cols: PockeTA AI Advising Chat Box & Conversation */}
+        <div className="lg:col-span-2">
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5 flex flex-col justify-between">
+            {/* Chat Header */}
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center space-x-2">
-                <Compass className="w-5 h-5 text-indigo-600" />
-                <h3 className="text-base font-bold text-slate-900">Advising Insights & Dialogue</h3>
+              <div className="flex items-center space-x-2.5">
+                <div className="p-2 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-xl">
+                  <MessageSquare className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold text-slate-900 flex items-center space-x-2">
+                    <span>PockeTA AI Academic Advisor</span>
+                    <span className="text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded font-mono font-semibold">
+                      Live Assistant
+                    </span>
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Ask any questions about degree requirements, prerequisites, or study plans.
+                  </p>
+                </div>
               </div>
-              <span className="text-xs text-slate-400 font-medium">
-                {messages.length} message{messages.length > 1 ? 's' : ''}
-              </span>
+              {messages.length > 0 && (
+                <button
+                  onClick={() => setMessages([])}
+                  className="text-xs text-slate-400 hover:text-slate-600 font-medium cursor-pointer"
+                  title="Clear chat history"
+                >
+                  Clear chat
+                </button>
+              )}
             </div>
 
-            <div className="space-y-5 max-h-[500px] overflow-y-auto pr-1">
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex flex-col ${
-                    msg.sender === 'user' ? 'items-end' : 'items-start'
-                  } space-y-2`}
-                >
-                  <div
-                    className={`max-w-2xl rounded-2xl p-4 text-sm leading-relaxed ${
-                      msg.sender === 'user'
-                        ? 'bg-indigo-600 text-white rounded-br-none shadow-sm'
-                        : 'bg-slate-50 text-slate-800 border border-slate-200 rounded-bl-none shadow-sm'
-                    }`}
-                  >
-                    {msg.sender === 'pocketa' && (
-                      <div className="flex items-center space-x-2 text-xs font-semibold text-indigo-600 mb-2 pb-1.5 border-b border-slate-200/60">
-                        <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-                        <span>PockeTA AI Advisor</span>
-                        <span className="text-[10px] text-slate-400 font-normal">
-                          • {msg.timestamp}
-                        </span>
+            {/* Chat Conversation Stream & Empty Suggestions */}
+            <div className="space-y-4 min-h-[320px] max-h-[460px] overflow-y-auto pr-1">
+              {messages.length === 0 ? (
+                <div className="py-6 text-center space-y-4">
+                  <div className="w-12 h-12 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                    <Sparkles className="w-6 h-6 text-indigo-600 animate-pulse" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900">Start a Conversation with PockeTA</h4>
+                    <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+                      Select one of the suggested inquiries below or type your question in the chat input.
+                    </p>
+                  </div>
+
+                  {/* Suggestions when empty */}
+                  <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-left max-w-xl mx-auto">
+                    {SAMPLE_ADVISING_QUESTIONS.map((q, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleAskQuestion(q)}
+                        className="p-3 bg-slate-50 hover:bg-indigo-50/70 border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-indigo-700 rounded-xl transition-all text-xs font-semibold leading-snug cursor-pointer flex items-center justify-between group"
+                      >
+                        <span>"{q}"</span>
+                        <ArrowRight className="w-3.5 h-3.5 text-indigo-600 shrink-0 ml-2 group-hover:translate-x-0.5 transition-transform" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {messages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`flex flex-col ${
+                        msg.sender === 'user' ? 'items-end' : 'items-start'
+                      } space-y-2`}
+                    >
+                      <div
+                        className={`max-w-2xl rounded-2xl p-4 text-sm leading-relaxed ${
+                          msg.sender === 'user'
+                            ? 'bg-indigo-600 text-white rounded-br-none shadow-sm'
+                            : 'bg-slate-50 text-slate-800 border border-slate-200 rounded-bl-none shadow-sm'
+                        }`}
+                      >
+                        {msg.sender === 'pocketa' && (
+                          <div className="flex items-center space-x-2 text-xs font-semibold text-indigo-600 mb-2 pb-1.5 border-b border-slate-200/60">
+                            <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                            <span>PockeTA AI Advisor</span>
+                            <span className="text-[10px] text-slate-400 font-normal">
+                              • {msg.timestamp}
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="whitespace-pre-line font-sans">
+                          {msg.content}
+                        </div>
+
+                        {/* Action Buttons if available */}
+                        {msg.suggestedActions && msg.suggestedActions.length > 0 && (
+                          <div className="mt-3 pt-3 border-t border-slate-200/60 flex flex-wrap gap-2">
+                            {msg.suggestedActions.map((act, aIdx) => (
+                              <button
+                                key={aIdx}
+                                onClick={() => handleActionClick(act)}
+                                className="flex items-center space-x-1.5 text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg transition-colors font-semibold cursor-pointer"
+                              >
+                                <span>{act.label}</span>
+                                <ArrowRight className="w-3 h-3 text-indigo-600" />
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                    )}
-
-                    <div className="whitespace-pre-line font-sans">
-                      {msg.content}
                     </div>
+                  ))}
 
-                    {/* Action Buttons if available */}
-                    {msg.suggestedActions && msg.suggestedActions.length > 0 && (
-                      <div className="mt-3 pt-3 border-t border-slate-200/60 flex flex-wrap gap-2">
-                        {msg.suggestedActions.map((act, aIdx) => (
+                  {/* Suggested questions at bottom if messages exist */}
+                  {messages.length < 3 && (
+                    <div className="pt-2 border-t border-slate-100 space-y-1.5">
+                      <span className="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 block">
+                        Suggested Inquiries:
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {SAMPLE_ADVISING_QUESTIONS.slice(0, 3).map((q, idx) => (
                           <button
-                            key={aIdx}
-                            onClick={() => handleActionClick(act)}
-                            className="flex items-center space-x-1.5 text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg transition-colors font-semibold"
+                            key={idx}
+                            type="button"
+                            onClick={() => handleAskQuestion(q)}
+                            className="text-[11px] bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 border border-slate-200 hover:border-indigo-200 px-2.5 py-1 rounded-lg transition-colors font-medium text-left cursor-pointer"
                           >
-                            <span>{act.label}</span>
-                            <ArrowRight className="w-3 h-3 text-indigo-600" />
+                            "{q}"
                           </button>
                         ))}
                       </div>
-                    )}
-                  </div>
-                </div>
-              ))}
+                    </div>
+                  )}
+                </>
+              )}
 
               {isLoading && (
                 <div className="flex items-center space-x-3 text-xs text-indigo-600 bg-indigo-50 p-3 rounded-xl border border-indigo-100 w-fit animate-pulse">
@@ -288,6 +294,40 @@ export const JourneyDashboard: React.FC<JourneyDashboardProps> = ({
                 </div>
               )}
             </div>
+
+            {/* Chat Input Box */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleAskQuestion();
+              }}
+              className="relative flex items-center pt-3 border-t border-slate-100"
+            >
+              <Search className="absolute left-4 w-5 h-5 text-slate-400" />
+              <input
+                id="advising-search-input"
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Ask PockeTA about prerequisites, electives, WIE placement, or study plans..."
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-28 py-3 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-inner"
+              />
+              <button
+                id="ask-advising-btn"
+                type="submit"
+                disabled={isLoading || !query.trim()}
+                className="absolute right-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg shadow-sm transition-all disabled:opacity-40 flex items-center space-x-1.5 cursor-pointer"
+              >
+                {isLoading ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <>
+                    <span>Send</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </>
+                )}
+              </button>
+            </form>
           </div>
         </div>
 
@@ -303,7 +343,7 @@ export const JourneyDashboard: React.FC<JourneyDashboardProps> = ({
               <button
                 id="edit-aspirations-btn"
                 onClick={onOpenGoalModal}
-                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors"
+                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors cursor-pointer"
               >
                 Edit
               </button>
@@ -359,47 +399,9 @@ export const JourneyDashboard: React.FC<JourneyDashboardProps> = ({
             </p>
             <button
               onClick={() => onNavigateTab('study-plan')}
-              className="w-full py-3 bg-white text-indigo-600 hover:bg-slate-50 rounded-xl text-xs font-bold uppercase tracking-wider shadow-sm transition-all"
+              className="w-full py-3 bg-white text-indigo-600 hover:bg-slate-50 rounded-xl text-xs font-bold uppercase tracking-wider shadow-sm transition-all cursor-pointer"
             >
               Update Study Plan
-            </button>
-          </div>
-
-          {/* Quick Access to Workspaces */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
-            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center space-x-2">
-              <Layers className="w-4 h-4 text-indigo-600" />
-              <span>Workspace Shortcuts</span>
-            </h4>
-
-            <button
-              onClick={() => onNavigateTab('study-plan')}
-              className="w-full text-left bg-slate-50 hover:bg-indigo-50/60 border border-slate-200 hover:border-indigo-200 rounded-xl p-3.5 transition-all flex items-center justify-between group"
-            >
-              <div>
-                <div className="text-xs font-bold text-slate-800 group-hover:text-indigo-700">
-                  Study Planning Workspace
-                </div>
-                <div className="text-[11px] text-slate-500">
-                  Drag & drop courses, view personalized descriptions
-                </div>
-              </div>
-              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-0.5 transition-all" />
-            </button>
-
-            <button
-              onClick={() => onNavigateTab('wie-capstone')}
-              className="w-full text-left bg-slate-50 hover:bg-indigo-50/60 border border-slate-200 hover:border-indigo-200 rounded-xl p-3.5 transition-all flex items-center justify-between group"
-            >
-              <div>
-                <div className="text-xs font-bold text-slate-800 group-hover:text-indigo-700">
-                  WIE & Capstone Selection
-                </div>
-                <div className="text-[11px] text-slate-500">
-                  Explore placements, test AI fit & missing prereqs
-                </div>
-              </div>
-              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-0.5 transition-all" />
             </button>
           </div>
         </div>
