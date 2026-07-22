@@ -43,8 +43,8 @@ export const Codesigner: React.FC<CodesignerProps> = ({
             <Sparkles className="w-5 h-5 text-white animate-pulse" />
           </div>
           <div>
-            <h2 className="text-lg font-extrabold tracking-tight">AI Codesigner</h2>
-            <p className="text-xs text-indigo-100 font-medium">Your personalized academic strategy partner</p>
+            <h2 className="text-lg font-extrabold tracking-tight">Capstone AI Codesigner</h2>
+            <p className="text-xs text-indigo-100 font-medium">Design your custom thesis topic and research strategy</p>
           </div>
         </div>
         
@@ -127,7 +127,7 @@ export const Codesigner: React.FC<CodesignerProps> = ({
                     onSendAiChat();
                   }
                 }}
-                placeholder="Ask me to optimize your Year 4 electives or check prerequisites..."
+                placeholder="Describe your research interests or a project idea to start designing your Capstone..."
                 className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-5 pr-14 py-4 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none shadow-inner"
               />
               <button
@@ -142,17 +142,17 @@ export const Codesigner: React.FC<CodesignerProps> = ({
               <span>Press Enter to send</span>
               <div className="flex items-center space-x-3">
                 <button 
-                  onClick={() => setAiChatInput("Check my Year 4 Term 1 prerequisites")}
+                  onClick={() => setAiChatInput("Brainstorm a Capstone topic for AI Healthcare")}
                   className="hover:text-indigo-600 transition-colors"
                 >
-                  Check Prereqs
+                  Brainstorm Topic
                 </button>
                 <span>•</span>
                 <button 
-                  onClick={() => setAiChatInput("Suggest electives for Full-stack Dev")}
+                  onClick={() => setAiChatInput("Suggest a technical stack for a Vision project")}
                   className="hover:text-indigo-600 transition-colors"
                 >
-                  Suggest Electives
+                  Tech Stack
                 </button>
               </div>
             </div>
@@ -200,12 +200,12 @@ export const Codesigner: React.FC<CodesignerProps> = ({
           </div>
 
           <div className="p-5 flex-1 overflow-y-auto">
-            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-3">Recent Optimization Tips</h3>
+            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-3">Capstone Design Tips</h3>
             <div className="space-y-3">
               {[
-                { title: 'Prerequisite Alert', text: 'COMP4442 requires COMP3438.', icon: ArrowRight },
-                { title: 'Goal Alignment', text: 'COMP3421 matches your Web Dev goal.', icon: ArrowRight },
-                { title: 'Term Balancing', text: 'Y4T1 is currently heavy (18 credits).', icon: ArrowRight },
+                { title: 'Topic Novelty', text: 'Consider integrating edge AI with privacy.', icon: ArrowRight },
+                { title: 'Technical Depth', text: 'Aim for a complex implementation component.', icon: ArrowRight },
+                { title: 'Feasibility', text: 'Ensure data availability for your research.', icon: ArrowRight },
               ].map((tip, i) => (
                 <div key={i} className="p-3 bg-white border border-slate-100 rounded-xl hover:border-indigo-100 transition-all group">
                   <div className="flex items-start space-x-3">
@@ -225,9 +225,9 @@ export const Codesigner: React.FC<CodesignerProps> = ({
           <div className="p-5 border-t border-slate-100">
             <button 
               className="w-full py-3 bg-slate-900 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-2 hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
-              onClick={() => setAiChatInput("Run a full plan audit for graduation readiness")}
+              onClick={() => setAiChatInput("Generate a structured Capstone proposal based on our discussion")}
             >
-              <span>Full Plan Audit</span>
+              <span>Generate Proposal</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>

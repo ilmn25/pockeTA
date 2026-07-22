@@ -137,9 +137,6 @@ export const WieCapstoneSelection: React.FC<WieCapstoneSelectionProps> = ({
             <h2 className="text-lg sm:text-xl font-extrabold text-slate-900">
               {initialActiveSubTab === 'wie' ? 'Work-Integrated Education (WIE)' : 'Capstone Project Portfolio'}
             </h2>
-            <span className="text-[10px] sm:text-xs bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full font-semibold border border-indigo-200">
-              Goal Alignment Engine
-            </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
             {initialActiveSubTab === 'wie' 
@@ -188,7 +185,6 @@ export const WieCapstoneSelection: React.FC<WieCapstoneSelectionProps> = ({
             const isSelected = selectedWieId === pos.id;
             const missingPrereqs = pos.prerequisiteCourseCodes.filter((c) => !planCourseCodes.has(c));
             const isPrereqSatisfied = missingPrereqs.length === 0;
-            const fitScore = isPrereqSatisfied ? 94 : 82;
 
             return (
               <div
@@ -266,17 +262,16 @@ export const WieCapstoneSelection: React.FC<WieCapstoneSelectionProps> = ({
                               <span className="font-semibold text-slate-800">{title}</span>
                             </div>
                             {isPlannedOrTaken ? (
-                              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded flex items-center space-x-1">
+                              <span className="text-[10px] font-bold text-emerald-700 flex items-center space-x-1">
                                 <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                                <span>In Study Plan</span>
+                                <span>In Plan</span>
                               </span>
                             ) : (
                               <button
                                 onClick={() => onRemediateAndRedirect([code])}
-                                className="text-[10px] font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-2 py-0.5 rounded flex items-center space-x-1 cursor-pointer transition-colors"
+                                className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 cursor-pointer transition-colors"
                               >
-                                <Plus className="w-3 h-3 text-amber-600" />
-                                <span>Add to Plan</span>
+                                <span>+ Add to Plan</span>
                               </button>
                             )}
                           </div>
@@ -285,46 +280,20 @@ export const WieCapstoneSelection: React.FC<WieCapstoneSelectionProps> = ({
                     </div>
                   </div>
 
-                  {/* Inline PockeTA Alignment Analysis Panel */}
-                  <div className="bg-indigo-50/60 border border-indigo-200/80 rounded-xl p-3.5 space-y-2 mt-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-                        <span className="text-xs font-extrabold text-indigo-950">
-                          PockeTA Alignment Analysis
-                        </span>
-                      </div>
-                      <span className="text-[11px] font-mono font-bold text-indigo-700 bg-indigo-100 border border-indigo-200 px-2 py-0.5 rounded-full">
-                        {fitScore}% Goal Fit
-                      </span>
-                    </div>
-
-                    <p className="text-[11px] text-slate-700 leading-relaxed">
-                      Matches your career goal target <span className="font-semibold text-slate-900">"{profile.careerGoals.slice(0, 48)}..."</span> with direct hands-on industry exposure.
-                    </p>
-
-                    <div className="pt-2 border-t border-indigo-200/60 flex items-center justify-between text-[11px]">
-                      <span className="text-slate-600 font-medium">Prerequisite Status:</span>
-                      {isPrereqSatisfied ? (
-                        <span className="text-emerald-700 font-bold flex items-center space-x-1">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>All Satisfied in Plan</span>
-                        </span>
-                      ) : (
-                        <div className="flex items-center space-x-2">
-                          <span className="text-amber-800 font-bold flex items-center space-x-1">
-                            <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-                            <span>Missing: {missingPrereqs.join(', ')}</span>
-                          </span>
-                          <button
-                            onClick={() => onRemediateAndRedirect(missingPrereqs)}
-                            className="text-[10px] font-bold text-indigo-700 hover:text-indigo-900 underline cursor-pointer"
-                          >
-                            Add to Plan
-                          </button>
-                        </div>
-                      )}
-                    </div>
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                    <span className="text-slate-500 font-medium italic">
+                      {isPrereqSatisfied 
+                        ? "✓ All prerequisites satisfied" 
+                        : `⚠ Missing: ${missingPrereqs.join(', ')}`}
+                    </span>
+                    {!isPrereqSatisfied && (
+                      <button
+                        onClick={() => onRemediateAndRedirect(missingPrereqs)}
+                        className="text-[10px] font-bold text-indigo-700 hover:text-indigo-900 underline cursor-pointer"
+                      >
+                        Add Missing to Plan
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -354,7 +323,6 @@ export const WieCapstoneSelection: React.FC<WieCapstoneSelectionProps> = ({
               const capPrereqCodes = cap.prerequisiteCourseCodes || ['COMP3211', 'COMP3423'];
               const missingPrereqs = capPrereqCodes.filter((c) => !planCourseCodes.has(c));
               const isPrereqSatisfied = missingPrereqs.length === 0;
-              const fitScore = isPrereqSatisfied ? 92 : 80;
 
               return (
                 <div
@@ -414,49 +382,33 @@ export const WieCapstoneSelection: React.FC<WieCapstoneSelectionProps> = ({
 
                     {/* Required Courses for Capstone */}
                     <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
-                      <div className="flex items-center justify-between text-xs font-bold text-slate-800">
-                        <span className="uppercase tracking-wider text-[10px] text-slate-500">Required Courses for Capstone</span>
-                        <span className="text-[10px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded font-mono">
-                          COMP4913 + {capPrereqCodes.length} Required Foundations
-                        </span>
+                      <div className="flex items-center justify-between text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                        <span>Required Prerequisites</span>
                       </div>
 
                       <div className="space-y-1.5">
-                        <div className="flex items-center justify-between bg-indigo-50/80 border border-indigo-200 p-2 rounded-lg text-xs">
-                          <div className="flex items-center space-x-2">
-                            <span className="font-mono font-extrabold text-indigo-800 bg-white border border-indigo-200 px-1.5 py-0.5 rounded text-[11px]">
-                              COMP4913
-                            </span>
-                            <span className="font-bold text-indigo-950">CAPSTONE PROJECT (6.0 Credits)</span>
-                          </div>
-                          <span className="text-[10px] font-bold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded">
-                            Required Core
-                          </span>
-                        </div>
-
                         {capPrereqCodes.map((code) => {
                           const isPlannedOrTaken = planCourseCodes.has(code);
                           const title = COURSE_NAME_MAP[code] || 'Prerequisite Subject';
                           return (
                             <div key={code} className="flex items-center justify-between bg-white border border-slate-200 p-2 rounded-lg text-xs">
                               <div className="flex items-center space-x-2">
-                                <span className="font-mono font-bold text-indigo-700 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded text-[11px]">
+                                <span className="font-mono font-bold text-indigo-700">
                                   {code}
                                 </span>
                                 <span className="font-medium text-slate-800">{title}</span>
                               </div>
                               {isPlannedOrTaken ? (
-                                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded flex items-center space-x-1">
+                                <span className="text-[10px] font-bold text-emerald-700 flex items-center space-x-1">
                                   <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                                   <span>Satisfied</span>
                                 </span>
                               ) : (
                                 <button
                                   onClick={() => onRemediateAndRedirect([code])}
-                                  className="text-[10px] font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-2 py-0.5 rounded flex items-center space-x-1 cursor-pointer transition-colors"
+                                  className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 cursor-pointer transition-colors"
                                 >
-                                  <AlertTriangle className="w-3 h-3 text-amber-600" />
-                                  <span>Add to Plan</span>
+                                  <span>+ Add to Plan</span>
                                 </button>
                               )}
                             </div>
@@ -465,45 +417,20 @@ export const WieCapstoneSelection: React.FC<WieCapstoneSelectionProps> = ({
                       </div>
                     </div>
 
-                    <div className="bg-indigo-50/60 border border-indigo-200/80 rounded-xl p-3.5 space-y-2 mt-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-1.5">
-                          <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-                          <span className="text-xs font-extrabold text-indigo-950">
-                            PockeTA Alignment Analysis
-                          </span>
-                        </div>
-                        <span className="text-[11px] font-mono font-bold text-indigo-700 bg-indigo-100 border border-indigo-200 px-2 py-0.5 rounded-full">
-                          {fitScore}% Goal Fit
-                        </span>
-                      </div>
-
-                      <p className="text-[11px] text-slate-700 leading-relaxed">
-                        Research topic aligns directly with your target job as <span className="font-semibold text-slate-900">"{profile.targetJob || 'Full-Stack AI Software Engineer'}"</span>.
-                      </p>
-
-                      <div className="pt-2 border-t border-indigo-200/60 flex items-center justify-between text-[11px]">
-                        <span className="text-slate-600 font-medium">Prerequisite Status:</span>
-                        {isPrereqSatisfied ? (
-                          <span className="text-emerald-700 font-bold flex items-center space-x-1">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                            <span>All Prereqs Met in Plan</span>
-                          </span>
-                        ) : (
-                          <div className="flex items-center space-x-2">
-                            <span className="text-amber-800 font-bold flex items-center space-x-1">
-                              <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-                              <span>Missing: {missingPrereqs.join(', ')}</span>
-                            </span>
-                            <button
-                              onClick={() => onRemediateAndRedirect(missingPrereqs)}
-                              className="text-[10px] font-bold text-indigo-700 hover:text-indigo-900 underline cursor-pointer"
-                            >
-                              Add to Plan
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                      <span className="text-slate-500 font-medium italic">
+                        {isPrereqSatisfied 
+                          ? "✓ All prerequisites satisfied" 
+                          : `⚠ Missing: ${missingPrereqs.join(', ')}`}
+                      </span>
+                      {!isPrereqSatisfied && (
+                        <button
+                          onClick={() => onRemediateAndRedirect(missingPrereqs)}
+                          className="text-[10px] font-bold text-indigo-700 hover:text-indigo-900 underline cursor-pointer"
+                        >
+                          Add Missing to Plan
+                        </button>
+                      )}
                     </div>
                   </div>
 

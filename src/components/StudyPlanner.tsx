@@ -402,16 +402,16 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
                                     {course.grade && (
                                       <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
                                         course.grade === 'A' || course.grade === 'A-'
-                                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                          ? 'text-emerald-700 bg-emerald-50'
                                           : course.grade.startsWith('B')
-                                          ? 'bg-blue-100 text-blue-800 border border-blue-300'
+                                          ? 'text-blue-700 bg-blue-50'
                                           : course.grade.startsWith('C')
-                                          ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                                          ? 'text-amber-700 bg-amber-50'
                                           : course.grade === 'R'
-                                          ? 'bg-indigo-100 text-indigo-800 border border-indigo-300'
-                                          : 'bg-slate-100 text-slate-600'
+                                          ? 'text-indigo-700 bg-indigo-50'
+                                          : 'text-slate-600 bg-slate-50'
                                       }`}>
-                                        Grade: {course.grade}
+                                        {course.grade}
                                       </span>
                                     )}
                                   </div>
@@ -438,21 +438,15 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
                                   : course.standardDescription}
                               </p>
 
-                              {/* Goal Match Badge if Personalized */}
-                              {usePersonalized && personalizedInfo?.score && (
-                                <div className="mt-2.5 flex items-center justify-between text-[10px]">
-                                  <span className="inline-flex items-center space-x-1 text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                                    <Sparkles className="w-3 h-3 text-emerald-600" />
-                                    <span>{personalizedInfo.score}% Goal Alignment</span>
-                                  </span>
-                                  <button
-                                    onClick={() => setActiveCourseModal(course)}
-                                    className="text-indigo-600 hover:underline font-semibold"
-                                  >
-                                    Details
-                                  </button>
-                                </div>
-                              )}
+                              {/* Details Trigger */}
+                              <div className="mt-2.5 flex items-center justify-end">
+                                <button
+                                  onClick={() => setActiveCourseModal(course)}
+                                  className="text-[10px] text-indigo-600 hover:underline font-bold uppercase tracking-wider"
+                                >
+                                  View Details
+                                </button>
+                              </div>
 
                               {/* Prerequisite Warnings */}
                               {prereqWarnings.length > 0 && (
@@ -485,10 +479,10 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
       <button
         id="edge-catalog-drawer-trigger-btn"
         onClick={() => setIsCatalogMenuOpen(!isCatalogMenuOpen)}
-        className="fixed right-0 top-1/2 -translate-y-1/2 bg-indigo-600 hover:bg-indigo-700 text-white py-4 px-2.5 rounded-l-2xl shadow-2xl z-40 flex flex-col items-center space-y-2 text-xs font-bold transition-all cursor-pointer border-l border-t border-b border-indigo-500"
+        className="fixed right-0 top-1/2 -translate-y-1/2 bg-slate-900 hover:bg-slate-800 text-white py-4 px-2.5 rounded-l-2xl shadow-2xl z-40 flex flex-col items-center space-y-2 text-xs font-bold transition-all cursor-pointer border-l border-t border-b border-slate-700"
         title="Toggle Course Repository Side Menu"
       >
-        <Layers className="w-5 h-5 text-amber-300 animate-pulse" />
+        <Layers className="w-5 h-5 text-indigo-400" />
         <span className="[writing-mode:vertical-lr] rotate-180 tracking-wider text-[11px] font-mono uppercase">
           Course Catalog
         </span>
@@ -576,9 +570,9 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
           {suggestions.length > 0 && (
             <div className="space-y-2.5 pb-3 border-b border-slate-200">
               <div className="flex items-center space-x-1.5 px-0.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse shrink-0" />
-                <h4 className="text-[11px] font-extrabold text-amber-900 uppercase tracking-wider">
-                  AI Suggested Recommendations (Draggable)
+                <Lightbulb className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <h4 className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
+                  Course Recommendations
                 </h4>
               </div>
 
@@ -593,7 +587,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
                     key={sug.id}
                     draggable={course && !isSelectedOrTaken ? true : false}
                     onDragStart={(e) => course && !isSelectedOrTaken && handleDragStart(e, course, 'catalog')}
-                    className={`bg-gradient-to-br from-amber-50 via-amber-50/80 to-indigo-50/40 border-2 border-amber-300/90 rounded-xl p-3 shadow-sm space-y-2 transition-all hover:border-amber-400 hover:shadow-md ${
+                    className={`bg-white border-2 border-indigo-100 rounded-xl p-3 shadow-sm space-y-2 transition-all hover:border-indigo-300 ${
                       isSelectedOrTaken
                         ? 'opacity-60 cursor-not-allowed select-none'
                         : 'cursor-grab active:cursor-grabbing'
@@ -602,38 +596,30 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-extrabold text-slate-900 flex items-center space-x-1.5">
                         {course && !isSelectedOrTaken && (
-                          <GripVertical className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                          <GripVertical className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
                         )}
-                        <Lightbulb className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                         <span>{sug.title}</span>
-                      </span>
-                      <span className="text-[10px] font-bold text-amber-800 bg-amber-200/80 px-2 py-0.5 rounded-full shrink-0">
-                        Suggested
                       </span>
                     </div>
 
-                    <div className="text-[11px] text-slate-700 leading-relaxed bg-white/90 p-2.5 rounded-lg border border-amber-200/70 shadow-2xs">
-                      <span className="text-[10px] font-extrabold text-amber-900 uppercase block mb-0.5">
-                        Explanation:
-                      </span>
+                    <div className="text-[11px] text-slate-600 leading-relaxed italic">
                       {sug.reason}
                     </div>
 
                     {course && !isSelectedOrTaken && (
-                      <div className="flex items-center justify-between pt-1.5 border-t border-amber-200/60 text-[11px]">
-                        <span className="text-amber-900 font-semibold text-[10px] flex items-center space-x-1">
-                          <GripVertical className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                          <span>Drag onto any semester card</span>
+                      <div className="flex items-center justify-between pt-1.5 border-t border-slate-100 text-[10px]">
+                        <span className="text-slate-500 font-medium">
+                          Drag to plan
                         </span>
-                        <span className="text-[10px] font-mono font-bold text-amber-800 bg-amber-100/90 border border-amber-200 px-1.5 py-0.5 rounded">
+                        <span className="font-mono font-bold text-indigo-600">
                           {course.credits} Cr
                         </span>
                       </div>
                     )}
 
                     {isSelectedOrTaken && (
-                      <div className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 p-1.5 rounded-lg text-center">
-                        ✓ Added to Plan ({plannedSem?.label.split(' ')[0]} {plannedSem?.label.split(' ')[1]})
+                      <div className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 p-1.5 rounded-lg text-center border border-emerald-100">
+                        ✓ Added to Plan ({plannedSem?.label.split(' ')[0]})
                       </div>
                     )}
                   </div>
