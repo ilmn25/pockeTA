@@ -28,10 +28,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin main
-          git merge --no-edit origin/main || true
-          git checkout ORIG_HEAD -- .github/workflows/ vite.config.ts package-lock.json 2>/dev/null || git checkout prod -- .github/workflows/ vite.config.ts package-lock.json
-          git add -A
-          git commit --no-edit || true
+          git merge --no-edit origin/main
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -42,12 +39,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Configure Pages
-        id: pages
-        uses: actions/configure-pages@v5
-
       - name: Build
         run: npm run build
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

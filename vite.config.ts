@@ -1,12 +1,12 @@
-import tailwindcss from '@tailwindcss/vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import {defineConfig} from 'vite';
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  base: '/pockeTA/',
   plugins: [react(), tailwindcss()],
+  base: '/pockeTA/',
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-  },
+  }
 });
