@@ -29,7 +29,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin main
           git merge --no-edit origin/main || true
-          git checkout HEAD -- .github/workflows/ vite.config.ts package-lock.json
+          git checkout ORIG_HEAD -- .github/workflows/ vite.config.ts package-lock.json 2>/dev/null || git checkout prod -- .github/workflows/ vite.config.ts package-lock.json
           git add -A
           git commit --no-edit || true
 
