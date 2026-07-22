@@ -4,7 +4,7 @@ import { JourneyDashboard } from './components/JourneyDashboard';
 import { StudyPlanner } from './components/StudyPlanner';
 import { WieCapstoneSelection } from './components/WieCapstoneSelection';
 import { GoalEditorModal } from './components/GoalEditorModal';
-import { StudentProfile, SemesterPlan, Suggestion, Course } from './types';
+import { StudentProfile, SemesterPlan, Suggestion, Course, CapstoneProject } from './types';
 import {
   INITIAL_STUDENT_PROFILE,
   INITIAL_SEMESTER_PLANS,
@@ -53,8 +53,20 @@ export default function App() {
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
   const [selectedWieId, setSelectedWieId] = useState<string | null>('wie_01');
   const [selectedCapstoneId, setSelectedCapstoneId] = useState<string | null>('cap_01');
+  const [capstoneProjects, setCapstoneProjects] = useState<CapstoneProject[]>(MOCK_CAPSTONE_PROJECTS);
   const [highlightCourseCode, setHighlightCourseCode] = useState<string | undefined>(undefined);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const handleUpdateProfile = (updated: Partial<StudentProfile>) => {
+    setProfile(prev => ({ ...prev, ...updated }));
+    showToast('Updated profile & target job!');
+  };
+
+  const handleAddCustomCapstone = (newCap: CapstoneProject) => {
+    setCapstoneProjects(prev => [newCap, ...prev]);
+    setSelectedCapstoneId(newCap.id);
+    showToast(`Added and selected custom Capstone thesis!`);
+  };
 
   // Proactive suggestions list
   const [suggestions, setSuggestions] = useState<Suggestion[]>([
@@ -188,6 +200,7 @@ export default function App() {
             studyPlan={studyPlan}
             onOpenGoalModal={() => setIsGoalModalOpen(true)}
             onNavigateTab={handleNavigateTab}
+            onUpdateProfile={handleUpdateProfile}
           />
         )}
 
@@ -208,7 +221,7 @@ export default function App() {
             profile={profile}
             studyPlan={studyPlan}
             wiePositions={MOCK_WIE_POSITIONS}
-            capstoneProjects={MOCK_CAPSTONE_PROJECTS}
+            capstoneProjects={capstoneProjects}
             selectedWieId={selectedWieId}
             selectedCapstoneId={selectedCapstoneId}
             onSelectWie={(id) => {
@@ -220,6 +233,7 @@ export default function App() {
               showToast('Updated primary Capstone selection!');
             }}
             onRemediateAndRedirect={handleRemediateAndRedirect}
+            onAddCustomCapstone={handleAddCustomCapstone}
           />
         )}
       </main>

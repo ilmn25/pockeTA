@@ -11,6 +11,9 @@ export const INITIAL_STUDENT_PROFILE: StudentProfile = {
   earnedCredits: 58,
   totalRequiredCredits: 124,
   careerGoals: 'Specializing in Software Engineering, Human-Computer Interaction & AI Systems. Aiming for advanced positions in full-stack architecture, software security, and AI product engineering.',
+  targetJob: 'Full-Stack AI Software Engineer',
+  targetJobSalary: 'HKD 32,000 - 45,000 / mo',
+  targetJobSkills: ['Software Engineering', 'HCI & Web Development', 'Database Architecture', 'Machine Learning', 'Systems & Cloud Security'],
   keySkillsInterest: ['Software Engineering', 'Human Computer Interaction', 'Database Systems', 'Computer Vision', 'AI']
 };
 
@@ -120,6 +123,14 @@ export const INITIAL_SEMESTER_PLANS: SemesterPlan[] = [
     ]
   },
   {
+    id: 'y1s',
+    label: '2023/S (Year 1 Summer)',
+    year: 1,
+    term: 'Summer',
+    isCompleted: true,
+    courses: []
+  },
+  {
     id: 'y2t1',
     label: '2024/1 (Year 2 Term 1)',
     year: 2,
@@ -143,6 +154,14 @@ export const INITIAL_SEMESTER_PLANS: SemesterPlan[] = [
       COMPULSORY_COURSES.find(c => c.code === 'COMP2421')!,
       COMPULSORY_COURSES.find(c => c.code === 'COMP2432')!
     ]
+  },
+  {
+    id: 'y2s',
+    label: '2024/S (Year 2 Summer)',
+    year: 2,
+    term: 'Summer',
+    isCompleted: true,
+    courses: []
   },
   {
     id: 'y3t1',
@@ -171,6 +190,14 @@ export const INITIAL_SEMESTER_PLANS: SemesterPlan[] = [
     ]
   },
   {
+    id: 'y3s',
+    label: '2025/S (Year 3 Summer)',
+    year: 3,
+    term: 'Summer',
+    isCompleted: true,
+    courses: []
+  },
+  {
     id: 'y4t1',
     label: '2026/1 (Year 4 Term 1)',
     year: 4,
@@ -192,6 +219,14 @@ export const INITIAL_SEMESTER_PLANS: SemesterPlan[] = [
       ELECTIVE_COURSES.find(c => c.code === 'COMP4432')!,
       ELECTIVE_COURSES.find(c => c.code === 'COMP4423')!
     ]
+  },
+  {
+    id: 'y4s',
+    label: '2026/S (Year 4 Summer)',
+    year: 4,
+    term: 'Summer',
+    isCompleted: false,
+    courses: []
   }
 ];
 

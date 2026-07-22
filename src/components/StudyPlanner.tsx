@@ -332,11 +332,13 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
                 </div>
 
                 {/* Semesters Grid for Year {yearNumber} */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {yearSemesters.map((sem) => {
               const termCredits = sem.courses.reduce((sum, c) => sum + c.credits, 0);
-              const isOverloaded = termCredits > 18;
-              const isUnderloaded = termCredits < 12 && !sem.isCompleted;
+              const maxCredits = sem.term === 'Summer' ? 9 : 18;
+              const minCredits = sem.term === 'Summer' ? 0 : 12;
+              const isOverloaded = termCredits > maxCredits;
+              const isUnderloaded = termCredits < minCredits && !sem.isCompleted;
               const isDropTarget = dragOverSemesterId === sem.id;
 
               return (
@@ -390,7 +392,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
                     {isOverloaded && (
                       <div className="mt-2 text-[11px] text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-lg flex items-center space-x-1 font-medium">
                         <AlertTriangle className="w-3 h-3 shrink-0 text-rose-600" />
-                        <span>{'Credit overload (>18). Consider shifting 1 course.'}</span>
+                        <span>{`Credit overload (>${maxCredits}). Consider shifting 1 course.`}</span>
                       </div>
                     )}
 
@@ -606,7 +608,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search available courses..."
-              className="w-full bg-white border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
           </div>
         </div>

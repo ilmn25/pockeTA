@@ -30,12 +30,17 @@ export interface StudentProfile {
   name: string;
   studentId: string;
   degree: string;
+  degreeName?: string;
+  major?: string;
   cohortYear: string;
   currentYearTerm: string;
   gpa: number;
   earnedCredits: number;
   totalRequiredCredits: number;
   careerGoals: string;
+  targetJob?: string;
+  targetJobSalary?: string;
+  targetJobSkills?: string[];
   keySkillsInterest: string[];
 }
 
