@@ -101,51 +101,74 @@ export const JourneyDashboard: React.FC<JourneyDashboardProps> = ({
   return (
     <div className="space-y-8 animate-fade-in pb-12">
       {/* Hero Welcome Banner */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold border border-indigo-200">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-              <span>Smart Academic Advising Hub</span>
-            </div>
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 shadow-sm relative overflow-hidden">
+        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div className="space-y-2">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
               Good morning, {profile.name}. 👋
             </h1>
-            <p className="text-slate-500 text-sm leading-relaxed">
-              Where would you like your academic journey to lead today? PockeTA actively aligns your course sequencing, WIE placement, and Capstone research with your career aspirations.
-            </p>
+            <div className="flex items-center space-x-2 text-xs text-slate-500 font-medium pt-1">
+              <GraduationCap className="w-4 h-4 text-indigo-600" />
+              <span>Department of Computing • {profile.major} ({profile.degreeName})</span>
+            </div>
           </div>
 
-          {/* Quick Metrics */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full md:w-auto shrink-0">
-            <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 text-center">
-              <span className="block text-[10px] uppercase tracking-wider text-slate-400 font-bold">
-                Degree Progress
-              </span>
-              <span className="text-xl font-extrabold text-indigo-600">
-                {profile.earnedCredits} / {profile.totalRequiredCredits}
-              </span>
-              <span className="text-[10px] text-slate-500">Credits Completed</span>
-            </div>
-
-            <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 text-center">
-              <span className="block text-[10px] uppercase tracking-wider text-slate-400 font-bold">
-                Cumulative GPA
-              </span>
-              <span className="text-xl font-extrabold text-emerald-600">
-                {profile.gpa.toFixed(2)}
-              </span>
-              <span className="text-[10px] text-emerald-600 font-medium">Honor Roll</span>
-            </div>
-
-            <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 text-center col-span-2 sm:col-span-1">
-              <span className="block text-[10px] uppercase tracking-wider text-slate-400 font-bold">
-                Current Term
-              </span>
-              <span className="text-base font-extrabold text-slate-800">
+          {/* Upgraded Quick Metrics Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 w-full lg:w-auto shrink-0">
+            {/* Current Term Card */}
+            <div className="bg-gradient-to-br from-indigo-50/80 via-white to-slate-50 border border-indigo-200/90 rounded-2xl p-4 shadow-2xs space-y-1.5 min-w-[170px]">
+              <div className="flex items-center justify-between text-indigo-600">
+                <span className="text-[10px] uppercase tracking-wider text-slate-500 font-extrabold">
+                  Current Term
+                </span>
+                <span className="flex h-2 w-2 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600"></span>
+                </span>
+              </div>
+              <div className="text-lg font-black text-slate-900 tracking-tight">
                 {profile.currentYearTerm}
-              </span>
-              <span className="text-[10px] text-indigo-600 font-medium">BEng CS & AI</span>
+              </div>
+              <div className="text-[11px] font-bold text-indigo-700 bg-indigo-100/70 border border-indigo-200 px-2 py-0.5 rounded-md w-fit">
+                Active Enrolled Term
+              </div>
+            </div>
+
+            {/* Degree Progress Card */}
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 shadow-2xs space-y-1.5 min-w-[170px]">
+              <div className="flex items-center justify-between text-slate-500">
+                <span className="text-[10px] uppercase tracking-wider text-slate-500 font-extrabold">
+                  Degree Progress
+                </span>
+                <BookOpen className="w-3.5 h-3.5 text-indigo-600" />
+              </div>
+              <div className="text-lg font-black text-indigo-600 tracking-tight">
+                {profile.earnedCredits} <span className="text-xs font-normal text-slate-500">/ {profile.totalRequiredCredits} Credits</span>
+              </div>
+              {/* Progress Bar */}
+              <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                <div
+                  className="bg-indigo-600 h-1.5 rounded-full"
+                  style={{ width: `${Math.min(100, Math.round((profile.earnedCredits / profile.totalRequiredCredits) * 100))}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Cumulative GPA Card */}
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 shadow-2xs space-y-1.5 min-w-[170px]">
+              <div className="flex items-center justify-between text-slate-500">
+                <span className="text-[10px] uppercase tracking-wider text-slate-500 font-extrabold">
+                  Cumulative GPA
+                </span>
+                <Award className="w-3.5 h-3.5 text-amber-500" />
+              </div>
+              <div className="text-lg font-black text-emerald-600 tracking-tight">
+                {profile.gpa.toFixed(2)} <span className="text-xs font-normal text-slate-400">/ 4.30</span>
+              </div>
+              <div className="text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md w-fit flex items-center space-x-1">
+                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                <span>Dean's Honor Roll</span>
+              </div>
             </div>
           </div>
         </div>
