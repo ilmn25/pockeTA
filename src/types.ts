@@ -1,4 +1,4 @@
-export type CourseCategory = 'Core' | 'Elective' | 'General Education' | 'Capstone' | 'WIE';
+export type CourseCategory = 'Core' | 'Elective' | 'Common Core' | 'Capstone' | 'WIE';
 
 export interface Course {
   code: string;

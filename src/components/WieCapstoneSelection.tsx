@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Award, Briefcase, GraduationCap, Sparkles, CheckCircle2, AlertTriangle, ArrowRight, RefreshCw, X, Check, ShieldCheck, MapPin, DollarSign, Clock, Users, Building2, BookOpen, Plus, Send, Lightbulb, Code, Layers } from 'lucide-react';
 import { WIEPosition, CapstoneProject, StudentProfile, SemesterPlan } from '../types';
+import { Codesigner } from './Codesigner';
 
 interface WieCapstoneSelectionProps {
   profile: StudentProfile;
@@ -13,6 +14,13 @@ interface WieCapstoneSelectionProps {
   onSelectCapstone: (id: string) => void;
   onRemediateAndRedirect: (missingCourseCodes: string[]) => void;
   onAddCustomCapstone?: (newCap: CapstoneProject) => void;
+  initialActiveSubTab: 'wie' | 'capstone';
+  // Codesigner Props
+  aiChatLogs: { sender: 'user' | 'pocketa', text: string }[];
+  aiChatInput: string;
+  setAiChatInput: (val: string) => void;
+  isAiReplying: boolean;
+  onSendAiChat: (text?: string) => void;
 }
 
 const COURSE_NAME_MAP: Record<string, string> = {
@@ -59,9 +67,19 @@ export const WieCapstoneSelection: React.FC<WieCapstoneSelectionProps> = ({
   onSelectWie,
   onSelectCapstone,
   onRemediateAndRedirect,
-  onAddCustomCapstone
+  onAddCustomCapstone,
+  initialActiveSubTab,
+  aiChatLogs,
+  aiChatInput,
+  setAiChatInput,
+  isAiReplying,
+  onSendAiChat
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'wie' | 'capstone'>('wie');
+  const [activeSubTab, setActiveSubTab] = useState<'selection' | 'codesigner'>('selection');
+
+  useEffect(() => {
+    setActiveSubTab('selection');
+  }, [initialActiveSubTab]);
 
   // AI Co-Designer Modal State
   const [isCoDesignerOpen, setIsCoDesignerOpen] = useState(false);
@@ -117,77 +135,53 @@ export const WieCapstoneSelection: React.FC<WieCapstoneSelectionProps> = ({
           <div className="flex items-center space-x-2 flex-wrap gap-y-1">
             <Award className="w-5 h-5 text-indigo-600 shrink-0" />
             <h2 className="text-lg sm:text-xl font-extrabold text-slate-900">
-              WIE & Capstone Project Selection
+              {initialActiveSubTab === 'wie' ? 'Work-Integrated Education (WIE)' : 'Capstone Project Portfolio'}
             </h2>
             <span className="text-[10px] sm:text-xs bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full font-semibold border border-indigo-200">
               Goal Alignment Engine
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Explore Work-Integrated Education (WIE) internships and Capstone research topics aligned with your career goals.
+            {initialActiveSubTab === 'wie' 
+              ? 'Explore internships and clinical AI placements aligned with your career goals.'
+              : 'Choose a research topic or co-design a custom thesis project with PockeTA AI.'}
           </p>
         </div>
 
-        {/* Sub-Tab Selector */}
-        <div className="flex bg-slate-100/90 p-1 rounded-full border border-slate-200 shrink-0 w-full sm:w-auto">
-          <button
-            id="subtab-wie-btn"
-            onClick={() => setActiveSubTab('wie')}
-            className={`flex items-center justify-center space-x-1.5 px-3.5 sm:px-4 py-2 rounded-full text-xs font-bold transition-all flex-1 sm:flex-initial ${
-              activeSubTab === 'wie'
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Briefcase className="w-3.5 h-3.5 shrink-0" />
-            <span className="whitespace-nowrap">WIE ({wiePositions.length})</span>
-          </button>
+        {/* Sub-Tab Selector (Only for Capstone) */}
+        {initialActiveSubTab === 'capstone' && (
+          <div className="flex bg-slate-100/90 p-1 rounded-full border border-slate-200 shrink-0 w-full sm:w-auto">
+            <button
+              id="subtab-capstone-selection-btn"
+              onClick={() => setActiveSubTab('selection')}
+              className={`flex items-center justify-center space-x-1.5 px-3.5 sm:px-4 py-2 rounded-full text-xs font-bold transition-all flex-1 sm:flex-initial ${
+                activeSubTab === 'selection'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <GraduationCap className="w-3.5 h-3.5 shrink-0" />
+              <span className="whitespace-nowrap">Projects ({capstoneProjects.length})</span>
+            </button>
 
-          <button
-            id="subtab-capstone-btn"
-            onClick={() => setActiveSubTab('capstone')}
-            className={`flex items-center justify-center space-x-1.5 px-3.5 sm:px-4 py-2 rounded-full text-xs font-bold transition-all flex-1 sm:flex-initial ${
-              activeSubTab === 'capstone'
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <GraduationCap className="w-3.5 h-3.5 shrink-0" />
-            <span className="whitespace-nowrap">Capstone ({capstoneProjects.length})</span>
-          </button>
-        </div>
+            <button
+              id="subtab-capstone-codesigner-btn"
+              onClick={() => setActiveSubTab('codesigner')}
+              className={`flex items-center justify-center space-x-1.5 px-3.5 sm:px-4 py-2 rounded-full text-xs font-bold transition-all flex-1 sm:flex-initial ${
+                activeSubTab === 'codesigner'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 shrink-0" />
+              <span className="whitespace-nowrap">AI Codesigner</span>
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* AI Capstone Co-Designer Banner (Visible when Capstone tab is active) */}
-      {activeSubTab === 'capstone' && (
-        <div className="bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 text-white rounded-2xl p-5 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-indigo-700/50">
-          <div className="space-y-1">
-            <div className="flex items-center space-x-2">
-              <Sparkles className="w-5 h-5 text-amber-300 animate-pulse shrink-0" />
-              <h3 className="text-base font-extrabold text-white">
-                PockeTA AI Capstone Co-Designer Studio
-              </h3>
-              <span className="text-[10px] bg-amber-400/20 text-amber-300 font-bold px-2 py-0.5 rounded border border-amber-400/30 uppercase tracking-wider">
-                Interactive AI Builder
-              </span>
-            </div>
-            <p className="text-xs text-indigo-200 max-w-2xl leading-relaxed">
-              Engage with PockeTA AI to brainstorm and co-design a personalized Capstone thesis topic tailored to your target job, technical stack, and research interests.
-            </p>
-          </div>
-          <button
-            id="launch-co-designer-btn"
-            onClick={() => setIsCoDesignerOpen(true)}
-            className="px-5 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center space-x-2 shrink-0 cursor-pointer"
-          >
-            <Sparkles className="w-4 h-4 text-slate-950" />
-            <span>Co-Design Capstone Project</span>
-          </button>
-        </div>
-      )}
-
-      {/* Content Grid */}
-      {activeSubTab === 'wie' ? (
+      {/* Conditional Content Rendering */}
+      {initialActiveSubTab === 'wie' ? (
         /* WIE Positions List */
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {wiePositions.map((pos) => {
@@ -351,187 +345,196 @@ export const WieCapstoneSelection: React.FC<WieCapstoneSelectionProps> = ({
             );
           })}
         </div>
-      ) : (
-        /* Capstone Projects List */
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {capstoneProjects.map((cap) => {
-            const isSelected = selectedCapstoneId === cap.id;
-            const capPrereqCodes = cap.prerequisiteCourseCodes || ['COMP3211', 'COMP3423'];
-            const missingPrereqs = capPrereqCodes.filter((c) => !planCourseCodes.has(c));
-            const isPrereqSatisfied = missingPrereqs.length === 0;
-            const fitScore = isPrereqSatisfied ? 92 : 80;
+      ) : activeSubTab === 'selection' ? (
+        /* Capstone Selection Content */
+        <div className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {capstoneProjects.map((cap) => {
+              const isSelected = selectedCapstoneId === cap.id;
+              const capPrereqCodes = cap.prerequisiteCourseCodes || ['COMP3211', 'COMP3423'];
+              const missingPrereqs = capPrereqCodes.filter((c) => !planCourseCodes.has(c));
+              const isPrereqSatisfied = missingPrereqs.length === 0;
+              const fitScore = isPrereqSatisfied ? 92 : 80;
 
-            return (
-              <div
-                key={cap.id}
-                className={`bg-white border rounded-2xl p-6 transition-all shadow-sm flex flex-col justify-between ${
-                  isSelected
-                    ? 'border-indigo-500 ring-2 ring-indigo-500/20 bg-indigo-50/10'
-                    : 'border-slate-200 hover:border-indigo-200'
-                }`}
-              >
-                <div className="space-y-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">
-                          {cap.difficulty}
-                        </span>
-                        <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-medium">
-                          Cap: {cap.capacity}
-                        </span>
-                      </div>
-                      <h3 className="text-base font-extrabold text-slate-900 mt-2 leading-snug">
-                        {cap.title}
-                      </h3>
-                      <p className="text-xs text-indigo-700 mt-1 font-semibold">
-                        {cap.supervisor} • {cap.department}
-                      </p>
-                    </div>
-
-                    {isSelected && (
-                      <span className="flex items-center space-x-1 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg shrink-0">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>Selected Capstone</span>
-                      </span>
-                    )}
-                  </div>
-
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    {cap.description}
-                  </p>
-
-                  <div>
-                    <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                      Key Technical Focus & Stack
-                    </span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {cap.keyTech.map((tech, tIdx) => (
-                        <span
-                          key={tIdx}
-                          className="text-[10px] bg-slate-100 text-indigo-700 border border-slate-200 px-2 py-0.5 rounded font-medium"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Required Courses for Capstone */}
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
-                    <div className="flex items-center justify-between text-xs font-bold text-slate-800">
-                      <span className="uppercase tracking-wider text-[10px] text-slate-500">Required Courses for Capstone</span>
-                      <span className="text-[10px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded font-mono">
-                        COMP4913 + {capPrereqCodes.length} Required Foundations
-                      </span>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      {/* COMP4913 Capstone Project itself */}
-                      <div className="flex items-center justify-between bg-indigo-50/80 border border-indigo-200 p-2 rounded-lg text-xs">
+              return (
+                <div
+                  key={cap.id}
+                  className={`bg-white border rounded-2xl p-6 transition-all shadow-sm flex flex-col justify-between ${
+                    isSelected
+                      ? 'border-indigo-500 ring-2 ring-indigo-500/20 bg-indigo-50/10'
+                      : 'border-slate-200 hover:border-indigo-200'
+                  }`}
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
                         <div className="flex items-center space-x-2">
-                          <span className="font-mono font-extrabold text-indigo-800 bg-white border border-indigo-200 px-1.5 py-0.5 rounded text-[11px]">
-                            COMP4913
+                          <span className="text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">
+                            {cap.difficulty}
                           </span>
-                          <span className="font-bold text-indigo-950">CAPSTONE PROJECT (6.0 Credits)</span>
+                          <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-medium">
+                            Cap: {cap.capacity}
+                          </span>
                         </div>
-                        <span className="text-[10px] font-bold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded">
-                          Required Core
-                        </span>
+                        <h3 className="text-base font-extrabold text-slate-900 mt-2 leading-snug">
+                          {cap.title}
+                        </h3>
+                        <p className="text-xs text-indigo-700 mt-1 font-semibold">
+                          {cap.supervisor} • {cap.department}
+                        </p>
                       </div>
 
-                      {/* List prerequisite courses */}
-                      {capPrereqCodes.map((code) => {
-                        const isPlannedOrTaken = planCourseCodes.has(code);
-                        const title = COURSE_NAME_MAP[code] || 'Prerequisite Subject';
-                        return (
-                          <div key={code} className="flex items-center justify-between bg-white border border-slate-200 p-2 rounded-lg text-xs">
-                            <div className="flex items-center space-x-2">
-                              <span className="font-mono font-bold text-indigo-700 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded text-[11px]">
-                                {code}
-                              </span>
-                              <span className="font-medium text-slate-800">{title}</span>
-                            </div>
-                            {isPlannedOrTaken ? (
-                              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded flex items-center space-x-1">
-                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                                <span>Satisfied</span>
-                              </span>
-                            ) : (
-                              <button
-                                onClick={() => onRemediateAndRedirect([code])}
-                                className="text-[10px] font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-2 py-0.5 rounded flex items-center space-x-1 cursor-pointer transition-colors"
-                              >
-                                <AlertTriangle className="w-3 h-3 text-amber-600" />
-                                <span>Add to Plan</span>
-                              </button>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Inline PockeTA Alignment Analysis Panel */}
-                  <div className="bg-indigo-50/60 border border-indigo-200/80 rounded-xl p-3.5 space-y-2 mt-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-                        <span className="text-xs font-extrabold text-indigo-950">
-                          PockeTA Alignment Analysis
-                        </span>
-                      </div>
-                      <span className="text-[11px] font-mono font-bold text-indigo-700 bg-indigo-100 border border-indigo-200 px-2 py-0.5 rounded-full">
-                        {fitScore}% Goal Fit
-                      </span>
-                    </div>
-
-                    <p className="text-[11px] text-slate-700 leading-relaxed">
-                      Research topic aligns directly with your target job as <span className="font-semibold text-slate-900">"{profile.targetJob || 'Full-Stack AI Software Engineer'}"</span>.
-                    </p>
-
-                    <div className="pt-2 border-t border-indigo-200/60 flex items-center justify-between text-[11px]">
-                      <span className="text-slate-600 font-medium">Prerequisite Status:</span>
-                      {isPrereqSatisfied ? (
-                        <span className="text-emerald-700 font-bold flex items-center space-x-1">
+                      {isSelected && (
+                        <span className="flex items-center space-x-1 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg shrink-0">
                           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>All Prereqs Met in Plan</span>
+                          <span>Selected Capstone</span>
                         </span>
-                      ) : (
-                        <div className="flex items-center space-x-2">
-                          <span className="text-amber-800 font-bold flex items-center space-x-1">
-                            <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-                            <span>Missing: {missingPrereqs.join(', ')}</span>
-                          </span>
-                          <button
-                            onClick={() => onRemediateAndRedirect(missingPrereqs)}
-                            className="text-[10px] font-bold text-indigo-700 hover:text-indigo-900 underline cursor-pointer"
-                          >
-                            Add to Plan
-                          </button>
-                        </div>
                       )}
                     </div>
+
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      {cap.description}
+                    </p>
+
+                    <div>
+                      <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                        Key Technical Focus & Stack
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {cap.keyTech.map((tech, tIdx) => (
+                          <span
+                            key={tIdx}
+                            className="text-[10px] bg-slate-100 text-indigo-700 border border-slate-200 px-2 py-0.5 rounded font-medium"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Required Courses for Capstone */}
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+                      <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+                        <span className="uppercase tracking-wider text-[10px] text-slate-500">Required Courses for Capstone</span>
+                        <span className="text-[10px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded font-mono">
+                          COMP4913 + {capPrereqCodes.length} Required Foundations
+                        </span>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between bg-indigo-50/80 border border-indigo-200 p-2 rounded-lg text-xs">
+                          <div className="flex items-center space-x-2">
+                            <span className="font-mono font-extrabold text-indigo-800 bg-white border border-indigo-200 px-1.5 py-0.5 rounded text-[11px]">
+                              COMP4913
+                            </span>
+                            <span className="font-bold text-indigo-950">CAPSTONE PROJECT (6.0 Credits)</span>
+                          </div>
+                          <span className="text-[10px] font-bold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded">
+                            Required Core
+                          </span>
+                        </div>
+
+                        {capPrereqCodes.map((code) => {
+                          const isPlannedOrTaken = planCourseCodes.has(code);
+                          const title = COURSE_NAME_MAP[code] || 'Prerequisite Subject';
+                          return (
+                            <div key={code} className="flex items-center justify-between bg-white border border-slate-200 p-2 rounded-lg text-xs">
+                              <div className="flex items-center space-x-2">
+                                <span className="font-mono font-bold text-indigo-700 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded text-[11px]">
+                                  {code}
+                                </span>
+                                <span className="font-medium text-slate-800">{title}</span>
+                              </div>
+                              {isPlannedOrTaken ? (
+                                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded flex items-center space-x-1">
+                                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                  <span>Satisfied</span>
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={() => onRemediateAndRedirect([code])}
+                                  className="text-[10px] font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-2 py-0.5 rounded flex items-center space-x-1 cursor-pointer transition-colors"
+                                >
+                                  <AlertTriangle className="w-3 h-3 text-amber-600" />
+                                  <span>Add to Plan</span>
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="bg-indigo-50/60 border border-indigo-200/80 rounded-xl p-3.5 space-y-2 mt-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                          <span className="text-xs font-extrabold text-indigo-950">
+                            PockeTA Alignment Analysis
+                          </span>
+                        </div>
+                        <span className="text-[11px] font-mono font-bold text-indigo-700 bg-indigo-100 border border-indigo-200 px-2 py-0.5 rounded-full">
+                          {fitScore}% Goal Fit
+                        </span>
+                      </div>
+
+                      <p className="text-[11px] text-slate-700 leading-relaxed">
+                        Research topic aligns directly with your target job as <span className="font-semibold text-slate-900">"{profile.targetJob || 'Full-Stack AI Software Engineer'}"</span>.
+                      </p>
+
+                      <div className="pt-2 border-t border-indigo-200/60 flex items-center justify-between text-[11px]">
+                        <span className="text-slate-600 font-medium">Prerequisite Status:</span>
+                        {isPrereqSatisfied ? (
+                          <span className="text-emerald-700 font-bold flex items-center space-x-1">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>All Prereqs Met in Plan</span>
+                          </span>
+                        ) : (
+                          <div className="flex items-center space-x-2">
+                            <span className="text-amber-800 font-bold flex items-center space-x-1">
+                              <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                              <span>Missing: {missingPrereqs.join(', ')}</span>
+                            </span>
+                            <button
+                              onClick={() => onRemediateAndRedirect(missingPrereqs)}
+                              className="text-[10px] font-bold text-indigo-700 hover:text-indigo-900 underline cursor-pointer"
+                            >
+                              Add to Plan
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-end">
+                    <button
+                      onClick={() => onSelectCapstone(cap.id)}
+                      className={`w-full py-2 rounded-xl text-xs font-bold transition-all ${
+                        isSelected
+                          ? 'bg-emerald-600 text-white shadow-sm'
+                          : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                      }`}
+                    >
+                      {isSelected ? 'Selected Capstone Choice ✓' : 'Select Choice'}
+                    </button>
                   </div>
                 </div>
-
-                {/* Actions Footer */}
-                <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-end">
-                  <button
-                    onClick={() => onSelectCapstone(cap.id)}
-                    className={`w-full py-2 rounded-xl text-xs font-bold transition-all ${
-                      isSelected
-                        ? 'bg-emerald-600 text-white shadow-sm'
-                        : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                    }`}
-                  >
-                    {isSelected ? 'Selected Capstone Choice ✓' : 'Select Choice'}
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
+      ) : (
+        /* AI Codesigner Content */
+        <Codesigner
+          profile={profile}
+          studyPlan={studyPlan}
+          aiChatLogs={aiChatLogs}
+          aiChatInput={aiChatInput}
+          setAiChatInput={setAiChatInput}
+          isAiReplying={isAiReplying}
+          onSendAiChat={onSendAiChat}
+        />
       )}
 
       {/* AI Capstone Co-Designer Studio Modal */}

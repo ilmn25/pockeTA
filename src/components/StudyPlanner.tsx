@@ -299,7 +299,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {yearSemesters.map((sem) => {
               const termCredits = sem.courses.reduce((sum, c) => sum + c.credits, 0);
-              const maxCredits = sem.term === 'Term 3' ? 9 : 18;
+              const maxCredits = sem.term === 'Term 3' ? 9 : 21;
               const minCredits = sem.term === 'Term 3' ? 0 : 12;
               const isOverloaded = termCredits > maxCredits;
               const isUnderloaded = termCredits < minCredits && !sem.isCompleted;
@@ -498,7 +498,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
       {isCatalogMenuOpen && (
         <div
           onClick={() => setIsCatalogMenuOpen(false)}
-          className="fixed inset-0 bg-slate-900/40 backdrop-blur-2xs z-40 transition-opacity"
+          className={`fixed inset-0 bg-slate-900/40 backdrop-blur-2xs z-40 transition-opacity ${draggedCourse ? 'pointer-events-none' : ''}`}
         />
       )}
 
@@ -521,7 +521,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
             <button
               onClick={() => {
                 setStudyPlan(INITIAL_SEMESTER_PLANS);
-                localStorage.setItem('pocketa_study_plan_v4', JSON.stringify(INITIAL_SEMESTER_PLANS));
+                localStorage.setItem('pocketa_study_plan_v5', JSON.stringify(INITIAL_SEMESTER_PLANS));
               }}
               className="p-1.5 text-rose-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
               title="Reset official plan"
@@ -542,7 +542,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
         <div className="p-4 border-b border-slate-100 bg-slate-50 space-y-3 shrink-0">
           {/* Category Filters (Capstone & Taken removed) */}
           <div className="flex flex-wrap gap-1">
-            {['ALL', 'Core', 'Elective', 'General Education', 'WIE'].map((cat) => (
+            {['ALL', 'Core', 'Elective', 'Common Core', 'WIE'].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}

@@ -1,10 +1,10 @@
 import React from 'react';
-import { Compass, Calendar, Award, Sparkles, User, Target, CheckCircle2 } from 'lucide-react';
+import { Compass, Calendar, Award, Sparkles, User, Target, CheckCircle2, Briefcase, GraduationCap } from 'lucide-react';
 import { StudentProfile } from '../types';
 
 interface HeaderProps {
-  activeTab: 'dashboard' | 'study-plan' | 'wie-capstone' | 'codesigner';
-  setActiveTab: (tab: 'dashboard' | 'study-plan' | 'wie-capstone' | 'codesigner') => void;
+  activeTab: 'dashboard' | 'study-plan' | 'wie' | 'capstone';
+  setActiveTab: (tab: 'dashboard' | 'study-plan' | 'wie' | 'capstone') => void;
   profile: StudentProfile;
   onOpenGoalModal: () => void;
 }
@@ -82,29 +82,29 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             <button
-              id="nav-tab-wie-capstone"
-              onClick={() => setActiveTab('wie-capstone')}
+              id="nav-tab-wie"
+              onClick={() => setActiveTab('wie')}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap min-h-[36px] flex-1 sm:flex-initial justify-center ${
-                activeTab === 'wie-capstone'
+                activeTab === 'wie'
                   ? 'bg-white text-indigo-600 shadow-sm font-bold'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
               }`}
             >
-              <Award className="w-3.5 h-3.5 shrink-0" />
-              <span>WIE & Capstone</span>
+              <Briefcase className="w-3.5 h-3.5 shrink-0" />
+              <span>WIE</span>
             </button>
 
             <button
-              id="nav-tab-codesigner"
-              onClick={() => setActiveTab('codesigner')}
+              id="nav-tab-capstone"
+              onClick={() => setActiveTab('capstone')}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap min-h-[36px] flex-1 sm:flex-initial justify-center ${
-                activeTab === 'codesigner'
+                activeTab === 'capstone'
                   ? 'bg-white text-indigo-600 shadow-sm font-bold'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 shrink-0" />
-              <span>Codesigner</span>
+              <GraduationCap className="w-3.5 h-3.5 shrink-0" />
+              <span>Capstone</span>
             </button>
           </nav>
 

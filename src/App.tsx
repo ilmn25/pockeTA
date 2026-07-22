@@ -17,12 +17,12 @@ import { Sparkles, CheckCircle2, Info } from 'lucide-react';
 
 export default function App() {
   const [profile, setProfile] = useState<StudentProfile>(() => {
-    const saved = localStorage.getItem('pocketa_profile_v4');
+    const saved = localStorage.getItem('pocketa_profile_v5');
     return saved ? JSON.parse(saved) : INITIAL_STUDENT_PROFILE;
   });
 
   const [studyPlan, setStudyPlan] = useState<SemesterPlan[]>(() => {
-    const saved = localStorage.getItem('pocketa_study_plan_v4');
+    const saved = localStorage.getItem('pocketa_study_plan_v5');
     if (saved) {
       try {
         const parsed: SemesterPlan[] = JSON.parse(saved);
@@ -43,14 +43,14 @@ export default function App() {
 
   // Persist State to LocalStorage
   useEffect(() => {
-    localStorage.setItem('pocketa_profile_v4', JSON.stringify(profile));
+    localStorage.setItem('pocketa_profile_v5', JSON.stringify(profile));
   }, [profile]);
 
   useEffect(() => {
-    localStorage.setItem('pocketa_study_plan_v4', JSON.stringify(studyPlan));
+    localStorage.setItem('pocketa_study_plan_v5', JSON.stringify(studyPlan));
   }, [studyPlan]);
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'study-plan' | 'wie-capstone' | 'codesigner'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'study-plan' | 'wie' | 'capstone'>('dashboard');
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
   const [selectedWieId, setSelectedWieId] = useState<string | null>('wie_01');
   const [selectedCapstoneId, setSelectedCapstoneId] = useState<string | null>('cap_01');
@@ -202,7 +202,7 @@ export default function App() {
     showToast(`Redirected to Study Planner. Staged missing course(s) ${missingCourseCodes.join(', ')} into Year 3 Term 1!`);
   };
 
-  const handleNavigateTab = (tab: 'dashboard' | 'study-plan' | 'wie-capstone' | 'codesigner', extra?: any) => {
+  const handleNavigateTab = (tab: 'dashboard' | 'study-plan' | 'wie' | 'capstone', extra?: any) => {
     setActiveTab(tab);
     if (extra?.highlightCourse) {
       setHighlightCourseCode(extra.highlightCourse);
@@ -254,7 +254,7 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'wie-capstone' && (
+        {(activeTab === 'wie' || activeTab === 'capstone') && (
           <WieCapstoneSelection
             profile={profile}
             studyPlan={studyPlan}
@@ -272,13 +272,8 @@ export default function App() {
             }}
             onRemediateAndRedirect={handleRemediateAndRedirect}
             onAddCustomCapstone={handleAddCustomCapstone}
-          />
-        )}
-
-        {activeTab === 'codesigner' && (
-          <Codesigner
-            profile={profile}
-            studyPlan={studyPlan}
+            initialActiveSubTab={activeTab}
+            // Codesigner Props
             aiChatLogs={aiChatLogs}
             aiChatInput={aiChatInput}
             setAiChatInput={setAiChatInput}
