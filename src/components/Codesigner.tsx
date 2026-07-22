@@ -40,7 +40,7 @@ export const Codesigner: React.FC<CodesignerProps> = ({
       <div className="bg-indigo-600 px-6 py-5 flex items-center justify-between text-white shrink-0">
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-white/20 rounded-xl backdrop-blur-md">
-            <Sparkles className="w-5 h-5 text-white animate-pulse" />
+            <Sparkles className="w-5 h-5 text-white" />
           </div>
           <div>
             <h2 className="text-lg font-extrabold tracking-tight">Capstone AI Codesigner</h2>
@@ -52,7 +52,7 @@ export const Codesigner: React.FC<CodesignerProps> = ({
           <div className="text-right">
             <span className="block text-[10px] uppercase font-bold text-indigo-200 tracking-wider">Status</span>
             <span className="text-xs font-bold flex items-center space-x-1">
-              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping" />
+              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
               <span>Ready to assist</span>
             </span>
           </div>

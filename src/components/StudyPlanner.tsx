@@ -263,7 +263,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
           {[1, 2, 3, 4].map((yearNumber) => {
             const yearSemesters = studyPlan.filter((s) => s.year === yearNumber);
             const totalYearCredits = yearSemesters.reduce(
-              (sum, sem) => sum + sem.courses.reduce((cSum, c) => cSum + c.credits, 0),
+              (sum, sem) => sum + sem.courses.reduce((cSum, c) => cSum + (isCapstoneCourse(c) ? 0 : c.credits), 0),
               0
             );
             const isYearCompleted = yearSemesters.every((s) => s.isCompleted);
@@ -298,7 +298,8 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
                 {/* Semesters Grid for Year {yearNumber} */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {yearSemesters.map((sem) => {
-              const termCredits = sem.courses.reduce((sum, c) => sum + c.credits, 0);
+              const termCredits = sem.courses.reduce((sum, c) => sum + (isCapstoneCourse(c) ? 0 : c.credits), 0);
+              const visibleCourses = sem.courses.filter(c => !isCapstoneCourse(c));
               const maxCredits = sem.term === 'Term 3' ? 9 : 21;
               const minCredits = sem.term === 'Term 3' ? 0 : 12;
               const isOverloaded = termCredits > maxCredits;
@@ -362,13 +363,13 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
 
                     {/* Course Cards Container */}
                     <div className="mt-4 space-y-3 min-h-[140px]">
-                      {sem.courses.length === 0 ? (
+                      {visibleCourses.length === 0 ? (
                         <div className="h-full min-h-[120px] rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center p-4 text-center text-slate-400 text-xs">
                           <Plus className="w-5 h-5 mb-1 text-slate-400" />
                           <span>Drag & drop courses here</span>
                         </div>
                       ) : (
-                        sem.courses.map((course) => {
+                        visibleCourses.map((course) => {
                           const prereqWarnings = getPrerequisiteWarnings(course, sem.id);
                           const isHighlighted = highlightCourseCode === course.code;
                           const personalizedInfo = personalizedMap[course.code];

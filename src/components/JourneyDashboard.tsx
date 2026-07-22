@@ -155,10 +155,7 @@ export const JourneyDashboard: React.FC<JourneyDashboardProps> = ({
                 <span className="text-[10px] uppercase tracking-wider text-slate-500 font-extrabold">
                   Current Term
                 </span>
-                <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600"></span>
-                </span>
+                <span className="h-2 w-2 rounded-full bg-indigo-600"></span>
               </div>
               <div className="text-lg font-black text-slate-900 tracking-tight">
                 {profile.currentYearTerm}
@@ -223,9 +220,6 @@ export const JourneyDashboard: React.FC<JourneyDashboardProps> = ({
                 <div>
                   <h3 className="text-base font-extrabold text-slate-900 flex items-center space-x-2">
                     <span>PockeTA AI Academic Advisor</span>
-                    <span className="text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded font-mono font-semibold">
-                      Live Assistant
-                    </span>
                   </h3>
                   <p className="text-xs text-slate-500">
                     Ask any questions about degree requirements, prerequisites, or study plans.
@@ -248,7 +242,7 @@ export const JourneyDashboard: React.FC<JourneyDashboardProps> = ({
               {messages.length === 0 ? (
                 <div className="py-6 text-center space-y-4">
                   <div className="w-12 h-12 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
-                    <Sparkles className="w-6 h-6 text-indigo-600 animate-pulse" />
+                    <Sparkles className="w-6 h-6 text-indigo-600" />
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-slate-900">Start a Conversation with PockeTA</h4>
