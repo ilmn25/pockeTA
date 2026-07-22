@@ -28,7 +28,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin main
-          git merge --no-edit origin/main
+          git merge --no-edit origin/main 2>/dev/null || true
+          git checkout prod -- .github/workflows/ vite.config.ts package-lock.json index.html
+          git add -A
+          git commit --no-edit 2>/dev/null || true
 
       - name: Set up Node
         uses: actions/setup-node@v4
