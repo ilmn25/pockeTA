@@ -124,9 +124,9 @@ export const INITIAL_SEMESTER_PLANS: SemesterPlan[] = [
   },
   {
     id: 'y1s',
-    label: '2023/S (Year 1 Summer)',
+    label: '2023/3 (Year 1 Term 3)',
     year: 1,
-    term: 'Summer',
+    term: 'Term 3',
     isCompleted: true,
     courses: []
   },
@@ -157,9 +157,9 @@ export const INITIAL_SEMESTER_PLANS: SemesterPlan[] = [
   },
   {
     id: 'y2s',
-    label: '2024/S (Year 2 Summer)',
+    label: '2024/3 (Year 2 Term 3)',
     year: 2,
-    term: 'Summer',
+    term: 'Term 3',
     isCompleted: true,
     courses: []
   },
@@ -191,9 +191,9 @@ export const INITIAL_SEMESTER_PLANS: SemesterPlan[] = [
   },
   {
     id: 'y3s',
-    label: '2025/S (Year 3 Summer)',
+    label: '2025/3 (Year 3 Term 3)',
     year: 3,
-    term: 'Summer',
+    term: 'Term 3',
     isCompleted: true,
     courses: []
   },
@@ -222,9 +222,9 @@ export const INITIAL_SEMESTER_PLANS: SemesterPlan[] = [
   },
   {
     id: 'y4s',
-    label: '2026/S (Year 4 Summer)',
+    label: '2026/3 (Year 4 Term 3)',
     year: 4,
-    term: 'Summer',
+    term: 'Term 3',
     isCompleted: false,
     courses: []
   }

@@ -3,6 +3,7 @@ import { Header } from './components/Header';
 import { JourneyDashboard } from './components/JourneyDashboard';
 import { StudyPlanner } from './components/StudyPlanner';
 import { WieCapstoneSelection } from './components/WieCapstoneSelection';
+import { Codesigner } from './components/Codesigner';
 import { GoalEditorModal } from './components/GoalEditorModal';
 import { StudentProfile, SemesterPlan, Suggestion, Course, CapstoneProject } from './types';
 import {
@@ -16,12 +17,12 @@ import { Sparkles, CheckCircle2, Info } from 'lucide-react';
 
 export default function App() {
   const [profile, setProfile] = useState<StudentProfile>(() => {
-    const saved = localStorage.getItem('pocketa_profile_v3');
+    const saved = localStorage.getItem('pocketa_profile_v4');
     return saved ? JSON.parse(saved) : INITIAL_STUDENT_PROFILE;
   });
 
   const [studyPlan, setStudyPlan] = useState<SemesterPlan[]>(() => {
-    const saved = localStorage.getItem('pocketa_study_plan_v3');
+    const saved = localStorage.getItem('pocketa_study_plan_v4');
     if (saved) {
       try {
         const parsed: SemesterPlan[] = JSON.parse(saved);
@@ -42,20 +43,54 @@ export default function App() {
 
   // Persist State to LocalStorage
   useEffect(() => {
-    localStorage.setItem('pocketa_profile_v3', JSON.stringify(profile));
+    localStorage.setItem('pocketa_profile_v4', JSON.stringify(profile));
   }, [profile]);
 
   useEffect(() => {
-    localStorage.setItem('pocketa_study_plan_v3', JSON.stringify(studyPlan));
+    localStorage.setItem('pocketa_study_plan_v4', JSON.stringify(studyPlan));
   }, [studyPlan]);
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'study-plan' | 'wie-capstone'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'study-plan' | 'wie-capstone' | 'codesigner'>('dashboard');
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
   const [selectedWieId, setSelectedWieId] = useState<string | null>('wie_01');
   const [selectedCapstoneId, setSelectedCapstoneId] = useState<string | null>('cap_01');
   const [capstoneProjects, setCapstoneProjects] = useState<CapstoneProject[]>(MOCK_CAPSTONE_PROJECTS);
   const [highlightCourseCode, setHighlightCourseCode] = useState<string | undefined>(undefined);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // AI Codesigner State
+  const [aiChatLogs, setAiChatLogs] = useState<{ sender: 'user' | 'pocketa'; text: string }[]>([
+    { sender: 'pocketa', text: 'Hello! I am your PockeTA Codesigner. How can I help you optimize your study path or career goals today?' }
+  ]);
+  const [aiChatInput, setAiChatInput] = useState('');
+  const [isAiReplying, setIsAiReplying] = useState(false);
+
+  const handleSendAiChat = async (inputText?: string) => {
+    const text = inputText || aiChatInput;
+    if (!text.trim()) return;
+
+    setAiChatLogs(prev => [...prev, { sender: 'user', text }]);
+    setAiChatInput('');
+    setIsAiReplying(true);
+
+    try {
+      const response = await fetch('/api/advising/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: text,
+          studentProfile: profile,
+          studyPlan
+        })
+      });
+      const data = await response.json();
+      setAiChatLogs(prev => [...prev, { sender: 'pocketa', text: data.answer || 'I have reviewed your request and updated my recommendations.' }]);
+    } catch {
+      setAiChatLogs(prev => [...prev, { sender: 'pocketa', text: 'I encountered an error connecting to my advisor core. Please try again in a moment.' }]);
+    } finally {
+      setIsAiReplying(false);
+    }
+  };
 
   const handleUpdateProfile = (updated: Partial<StudentProfile>) => {
     setProfile(prev => ({ ...prev, ...updated }));
@@ -167,10 +202,13 @@ export default function App() {
     showToast(`Redirected to Study Planner. Staged missing course(s) ${missingCourseCodes.join(', ')} into Year 3 Term 1!`);
   };
 
-  const handleNavigateTab = (tab: 'dashboard' | 'study-plan' | 'wie-capstone', extra?: any) => {
+  const handleNavigateTab = (tab: 'dashboard' | 'study-plan' | 'wie-capstone' | 'codesigner', extra?: any) => {
     setActiveTab(tab);
     if (extra?.highlightCourse) {
       setHighlightCourseCode(extra.highlightCourse);
+    }
+    if (extra?.initialMessage) {
+      handleSendAiChat(extra.initialMessage);
     }
   };
 
@@ -234,6 +272,18 @@ export default function App() {
             }}
             onRemediateAndRedirect={handleRemediateAndRedirect}
             onAddCustomCapstone={handleAddCustomCapstone}
+          />
+        )}
+
+        {activeTab === 'codesigner' && (
+          <Codesigner
+            profile={profile}
+            studyPlan={studyPlan}
+            aiChatLogs={aiChatLogs}
+            aiChatInput={aiChatInput}
+            setAiChatInput={setAiChatInput}
+            isAiReplying={isAiReplying}
+            onSendAiChat={handleSendAiChat}
           />
         )}
       </main>

@@ -3,8 +3,8 @@ import { Compass, Calendar, Award, Sparkles, User, Target, CheckCircle2 } from '
 import { StudentProfile } from '../types';
 
 interface HeaderProps {
-  activeTab: 'dashboard' | 'study-plan' | 'wie-capstone';
-  setActiveTab: (tab: 'dashboard' | 'study-plan' | 'wie-capstone') => void;
+  activeTab: 'dashboard' | 'study-plan' | 'wie-capstone' | 'codesigner';
+  setActiveTab: (tab: 'dashboard' | 'study-plan' | 'wie-capstone' | 'codesigner') => void;
   profile: StudentProfile;
   onOpenGoalModal: () => void;
 }
@@ -92,6 +92,19 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Award className="w-3.5 h-3.5 shrink-0" />
               <span>WIE & Capstone</span>
+            </button>
+
+            <button
+              id="nav-tab-codesigner"
+              onClick={() => setActiveTab('codesigner')}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap min-h-[36px] flex-1 sm:flex-initial justify-center ${
+                activeTab === 'codesigner'
+                  ? 'bg-white text-indigo-600 shadow-sm font-bold'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 shrink-0" />
+              <span>Codesigner</span>
             </button>
           </nav>
 

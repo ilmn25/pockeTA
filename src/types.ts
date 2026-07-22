@@ -6,7 +6,7 @@ export interface Course {
   credits: number;
   category: CourseCategory;
   prerequisites: string[];
-  semesterOffered: ('Term 1' | 'Term 2' | 'Summer')[];
+  semesterOffered: ('Term 1' | 'Term 2' | 'Term 3')[];
   standardDescription: string;
   personalizedDescription?: string;
   alignmentScore?: number;
@@ -19,7 +19,7 @@ export interface SemesterPlan {
   id: string; // e.g. 'y1t1'
   label: string; // e.g. 'Year 1 Term 1'
   year: number;
-  term: 'Term 1' | 'Term 2' | 'Summer';
+  term: 'Term 1' | 'Term 2' | 'Term 3';
   isCompleted?: boolean;
   isCurrent?: boolean;
   courses: Course[];

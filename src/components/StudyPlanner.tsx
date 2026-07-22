@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Calendar, Plus, Trash2, AlertTriangle, CheckCircle2, ChevronRight, Info, Search, MoveRight, ArrowRight, MessageSquare, Lightbulb, RefreshCw, X, Layers, GripVertical, Move } from 'lucide-react';
+import { Sparkles, Calendar, Plus, Trash2, AlertTriangle, CheckCircle2, ChevronRight, Info, Search, MoveRight, ArrowRight, Lightbulb, RefreshCw, X, Layers, GripVertical, Move } from 'lucide-react';
 import { Course, SemesterPlan, StudentProfile, Suggestion, CourseCategory } from '../types';
 import { INITIAL_SEMESTER_PLANS } from '../data/mockData';
 
@@ -31,17 +31,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
   const [dragOverSemesterId, setDragOverSemesterId] = useState<string | null>(null);
   const [activeCourseModal, setActiveCourseModal] = useState<Course | null>(null);
   
-  // Collaborative AI Assistant Chat state
-  const [isAiChatOpen, setIsAiChatOpen] = useState(false);
   const [isCatalogMenuOpen, setIsCatalogMenuOpen] = useState(false);
-  const [aiChatInput, setAiChatInput] = useState('');
-  const [aiChatLogs, setAiChatLogs] = useState<{ sender: 'user' | 'pocketa'; text: string }[]>([
-    {
-      sender: 'pocketa',
-      text: `Hello! I am PockeTA, your study planning co-pilot. I am reviewing your 4-year study plan. Ask me to help sequence prerequisites, adjust credit loads, or recommend electives for ${profile.careerGoals.slice(0, 40)}...`
-    }
-  ]);
-  const [isAiReplying, setIsAiReplying] = useState(false);
 
   // Fetch / Refresh Personalized Course Descriptions when goals or view mode changes
   useEffect(() => {
@@ -233,32 +223,6 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
     return missingPrereqs;
   };
 
-  // Collaborative Chat
-  const handleSendAiChat = async () => {
-    if (!aiChatInput.trim()) return;
-    const userText = aiChatInput;
-    setAiChatLogs(prev => [...prev, { sender: 'user', text: userText }]);
-    setAiChatInput('');
-    setIsAiReplying(true);
-
-    try {
-      const response = await fetch('/api/advising/ask', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          question: `Study Plan Collaborative Optimization Request: "${userText}"`,
-          studentProfile: profile,
-          studyPlan
-        })
-      });
-      const data = await response.json();
-      setAiChatLogs(prev => [...prev, { sender: 'pocketa', text: data.answer || 'I have reviewed your study plan options.' }]);
-    } catch {
-      setAiChatLogs(prev => [...prev, { sender: 'pocketa', text: 'I recommend balancing your Year 4 Term 2 electives for optimal prerequisite sequencing.' }]);
-    } finally {
-      setIsAiReplying(false);
-    }
-  };
 
   // Check if a course is taken
   const isCourseTaken = (c: Course) => {
@@ -335,8 +299,8 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {yearSemesters.map((sem) => {
               const termCredits = sem.courses.reduce((sum, c) => sum + c.credits, 0);
-              const maxCredits = sem.term === 'Summer' ? 9 : 18;
-              const minCredits = sem.term === 'Summer' ? 0 : 12;
+              const maxCredits = sem.term === 'Term 3' ? 9 : 18;
+              const minCredits = sem.term === 'Term 3' ? 0 : 12;
               const isOverloaded = termCredits > maxCredits;
               const isUnderloaded = termCredits < minCredits && !sem.isCompleted;
               const isDropTarget = dragOverSemesterId === sem.id;
@@ -555,16 +519,9 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
           </div>
           <div className="flex items-center space-x-1">
             <button
-              onClick={() => setIsAiChatOpen(!isAiChatOpen)}
-              className="p-1.5 text-indigo-300 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
-              title="Open PockeTA Co-Pilot"
-            >
-              <MessageSquare className="w-4 h-4" />
-            </button>
-            <button
               onClick={() => {
                 setStudyPlan(INITIAL_SEMESTER_PLANS);
-                localStorage.setItem('pocketa_study_plan_v3', JSON.stringify(INITIAL_SEMESTER_PLANS));
+                localStorage.setItem('pocketa_study_plan_v4', JSON.stringify(INITIAL_SEMESTER_PLANS));
               }}
               className="p-1.5 text-rose-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
               title="Reset official plan"
@@ -766,62 +723,6 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
           )}
         </div>
       </div>
-
-      {/* Collaborative AI Co-Pilot Drawer */}
-      {isAiChatOpen && (
-        <div className="fixed bottom-3 right-3 sm:bottom-6 sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-96 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[480px]">
-          <div className="bg-indigo-600 p-3.5 flex items-center justify-between text-white">
-            <div className="flex items-center space-x-2">
-              <Sparkles className="w-4 h-4 text-white animate-pulse" />
-              <span className="font-bold text-xs">PockeTA Collaborative Co-Pilot</span>
-            </div>
-            <button
-              onClick={() => setIsAiChatOpen(false)}
-              className="p-1.5 rounded text-white/80 hover:text-white min-h-[32px] min-w-[32px] flex items-center justify-center"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="p-3 space-y-3 overflow-y-auto flex-1 text-xs">
-            {aiChatLogs.map((log, idx) => (
-              <div
-                key={idx}
-                className={`p-2.5 rounded-xl ${
-                  log.sender === 'user'
-                    ? 'bg-indigo-600 text-white ml-6 text-right'
-                    : 'bg-slate-100 text-slate-800 mr-6 border border-slate-200'
-                }`}
-              >
-                {log.text}
-              </div>
-            ))}
-            {isAiReplying && (
-              <div className="text-[11px] text-indigo-600 animate-pulse font-medium">
-                PockeTA is reflecting on your plan...
-              </div>
-            )}
-          </div>
-
-          <div className="p-2 border-t border-slate-200 bg-slate-50 flex items-center space-x-2">
-            <input
-              type="text"
-              value={aiChatInput}
-              onChange={(e) => setAiChatInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSendAiChat()}
-              placeholder="e.g. Move AI4001 to Year 3 Term 1..."
-              className="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-500"
-            />
-            <button
-              onClick={handleSendAiChat}
-              disabled={isAiReplying || !aiChatInput.trim()}
-              className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-semibold disabled:opacity-50"
-            >
-              Send
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Course Detail Modal */}
       {activeCourseModal && (
