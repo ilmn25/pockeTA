@@ -1,0 +1,6 @@
+{
+  "name": "PockeTA",
+  "description": "Student workspace for academic advising, study planning, and WIE and Capstone project selection with AI goal alignment.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
