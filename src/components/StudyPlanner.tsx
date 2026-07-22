@@ -82,8 +82,14 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
 
   // Handle Drag and Drop
   const handleDragStart = (e: React.DragEvent, course: Course, sourceSemesterId: string | 'catalog') => {
-    e.dataTransfer.setData('text/plain', course.code);
-    e.dataTransfer.setData('application/json', JSON.stringify({ code: course.code, sourceSemesterId }));
+    e.stopPropagation();
+    try {
+      e.dataTransfer.setData('text/plain', course.code);
+      e.dataTransfer.setData('text', course.code);
+      e.dataTransfer.setData('application/json', JSON.stringify({ code: course.code, sourceSemesterId }));
+    } catch {
+      // Fallback if dataTransfer setData fails in restricted contexts
+    }
     e.dataTransfer.effectAllowed = 'move';
     setDraggedCourse({ course, sourceSemesterId });
   };
@@ -104,7 +110,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
     e.preventDefault();
     setDragOverSemesterId(null);
 
-    let courseCode = e.dataTransfer.getData('text/plain');
+    let courseCode = e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('text');
     let sourceSemId = draggedCourse?.sourceSemesterId;
 
     if (!courseCode && draggedCourse) {
@@ -288,6 +294,111 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
 
   return (
     <div className="space-y-8 animate-fade-in pb-16">
+      {/* Top Proactive AI Suggested Recommendations Panel (Draggable) */}
+      {suggestions.length > 0 && (
+        <div className="bg-gradient-to-r from-amber-50 via-indigo-50/50 to-slate-50 border-2 border-amber-300/80 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center space-x-2.5">
+              <div className="p-2 bg-amber-100 text-amber-700 border border-amber-300 rounded-xl">
+                <Sparkles className="w-5 h-5 text-amber-600 animate-pulse" />
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold text-slate-900 flex items-center space-x-2">
+                  <span>PockeTA AI Suggested Course Recommendations</span>
+                  <span className="text-[10px] bg-amber-100 text-amber-800 border border-amber-300 px-2.5 py-0.5 rounded-full font-mono font-bold">
+                    ★ Draggable Cards
+                  </span>
+                </h3>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  Drag & drop any suggested course card directly into any semester card below, or select a target term.
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setIsCatalogMenuOpen(true)}
+              className="text-xs font-bold text-indigo-700 hover:text-indigo-900 bg-white border border-indigo-200 px-3 py-1.5 rounded-xl shadow-2xs hover:bg-indigo-50 transition-colors flex items-center space-x-1 cursor-pointer"
+            >
+              <Layers className="w-3.5 h-3.5 text-indigo-600" />
+              <span>Open Full Catalog</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {suggestions.map((sug) => {
+              const course = sug.suggestedCourse || catalog.find(c => c.code === sug.id || sug.title.includes(c.code));
+              const plannedSem = course ? getPlannedSemester(course.code) : null;
+              const taken = course ? isCourseTaken(course) : false;
+              const isSelectedOrTaken = taken || !!plannedSem;
+
+              return (
+                <div
+                  key={sug.id}
+                  draggable={course && !isSelectedOrTaken ? true : false}
+                  onDragStart={(e) => course && !isSelectedOrTaken && handleDragStart(e, course, 'catalog')}
+                  className={`bg-white border-2 rounded-xl p-4 shadow-sm space-y-3 transition-all ${
+                    isSelectedOrTaken
+                      ? 'border-slate-200 bg-slate-50/80 opacity-70 cursor-not-allowed select-none'
+                      : 'border-amber-300 hover:border-amber-400 hover:shadow-md cursor-grab active:cursor-grabbing hover:scale-[1.01]'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-extrabold text-slate-900 flex items-center space-x-2">
+                      {course && !isSelectedOrTaken && (
+                        <GripVertical className="w-4 h-4 text-amber-500 shrink-0 cursor-grab" />
+                      )}
+                      <Lightbulb className="w-4 h-4 text-amber-600 shrink-0" />
+                      <span>{sug.title}</span>
+                    </span>
+                    <span className="text-[10px] font-bold text-amber-800 bg-amber-100 border border-amber-200 px-2 py-0.5 rounded-full shrink-0">
+                      AI Suggested
+                    </span>
+                  </div>
+
+                  <div className="text-xs text-slate-700 leading-relaxed bg-amber-50/60 p-3 rounded-lg border border-amber-200/60">
+                    <span className="text-[10px] font-extrabold text-amber-900 uppercase block mb-1">
+                      Rationale:
+                    </span>
+                    {sug.reason}
+                  </div>
+
+                  {course && !isSelectedOrTaken ? (
+                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs gap-2">
+                      <div className="flex items-center space-x-1.5 text-amber-800 font-semibold text-[11px]">
+                        <Move className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
+                        <span>Drag onto any semester card below</span>
+                      </div>
+
+                      <div className="flex items-center space-x-2" onMouseDown={(e) => e.stopPropagation()}>
+                        <select
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              handleAddCourseToSemester(course, e.target.value);
+                            }
+                          }}
+                          defaultValue=""
+                          className="text-xs bg-slate-50 border border-slate-200 hover:border-indigo-300 rounded-lg px-2 py-1 text-slate-700 font-medium cursor-pointer focus:outline-none"
+                        >
+                          <option value="" disabled>Add to Term...</option>
+                          {studyPlan.filter(s => !s.isCompleted).map(s => (
+                            <option key={s.id} value={s.id}>{s.label.split(' ')[0]} {s.label.split(' ')[1]}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  ) : isSelectedOrTaken ? (
+                    <div className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 p-2 rounded-lg text-center flex items-center justify-center space-x-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      <span>Already Added to {plannedSem?.label || 'Plan'}</span>
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Main Full-Width 8-Semester Interactive Grid Grouped by Year */}
       <div className="w-full space-y-8">
           {[1, 2, 3, 4].map((yearNumber) => {

@@ -61,17 +61,17 @@ export default function App() {
     {
       id: 'sug_01',
       type: 'add',
-      title: 'Add COMP4423: Computer Vision',
-      reason: 'Enhances specialization in visual recognition and intelligent software systems.',
-      suggestedCourse: COURSE_CATALOG.find(c => c.code === 'COMP4423'),
+      title: 'Add COMP3421: Web Application Design',
+      reason: 'Recommended elective for full-stack web architecture, React framework patterns, and RESTful APIs.',
+      suggestedCourse: COURSE_CATALOG.find(c => c.code === 'COMP3421'),
       targetSemesterId: 'y4t2'
     },
     {
       id: 'sug_02',
       type: 'add',
-      title: 'Add COMP4432: Machine Learning',
-      reason: 'Essential elective for predictive modeling and smart algorithms.',
-      suggestedCourse: COURSE_CATALOG.find(c => c.code === 'COMP4432'),
+      title: 'Add COMP4442: Service and Cloud Computing',
+      reason: 'Key elective for microservice architectures, Docker containerization, and scalable cloud systems.',
+      suggestedCourse: COURSE_CATALOG.find(c => c.code === 'COMP4442'),
       targetSemesterId: 'y4t2'
     }
   ]);
