@@ -34,48 +34,48 @@ export const WieCapstoneSelection: React.FC<WieCapstoneSelectionProps> = ({
   return (
     <div className="space-y-8 animate-fade-in pb-16">
       {/* Top Banner */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2">
-            <Award className="w-5 h-5 text-indigo-600" />
-            <h2 className="text-xl font-extrabold text-slate-900">
+          <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+            <Award className="w-5 h-5 text-indigo-600 shrink-0" />
+            <h2 className="text-lg sm:text-xl font-extrabold text-slate-900">
               WIE & Capstone Project Selection
             </h2>
-            <span className="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full font-semibold border border-indigo-200">
-              AI Goal Alignment Engine
+            <span className="text-[10px] sm:text-xs bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full font-semibold border border-indigo-200">
+              Goal Alignment Engine
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Explore Work-Integrated Education (WIE) internships and Capstone research topics with real-time AI alignment analysis against your career goals.
+            Explore Work-Integrated Education (WIE) internships and Capstone research topics aligned with your career goals.
           </p>
         </div>
 
         {/* Sub-Tab Selector */}
-        <div className="flex bg-slate-100/90 p-1 rounded-full border border-slate-200 shrink-0">
+        <div className="flex bg-slate-100/90 p-1 rounded-full border border-slate-200 shrink-0 w-full sm:w-auto">
           <button
             id="subtab-wie-btn"
             onClick={() => setActiveSubTab('wie')}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-bold transition-all ${
+            className={`flex items-center justify-center space-x-1.5 px-3.5 sm:px-4 py-2 rounded-full text-xs font-bold transition-all flex-1 sm:flex-initial ${
               activeSubTab === 'wie'
                 ? 'bg-indigo-600 text-white shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Briefcase className="w-4 h-4" />
-            <span>WIE Placements ({wiePositions.length})</span>
+            <Briefcase className="w-3.5 h-3.5 shrink-0" />
+            <span className="whitespace-nowrap">WIE ({wiePositions.length})</span>
           </button>
 
           <button
             id="subtab-capstone-btn"
             onClick={() => setActiveSubTab('capstone')}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-bold transition-all ${
+            className={`flex items-center justify-center space-x-1.5 px-3.5 sm:px-4 py-2 rounded-full text-xs font-bold transition-all flex-1 sm:flex-initial ${
               activeSubTab === 'capstone'
                 ? 'bg-indigo-600 text-white shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <GraduationCap className="w-4 h-4" />
-            <span>Capstone Projects ({capstoneProjects.length})</span>
+            <GraduationCap className="w-3.5 h-3.5 shrink-0" />
+            <span className="whitespace-nowrap">Capstone ({capstoneProjects.length})</span>
           </button>
         </div>
       </div>

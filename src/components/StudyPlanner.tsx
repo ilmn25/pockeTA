@@ -528,9 +528,17 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
         </span>
       </button>
 
+      {/* Course Repository Slide-Out Side Menu Drawer Overlay */}
+      {isCatalogMenuOpen && (
+        <div
+          onClick={() => setIsCatalogMenuOpen(false)}
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-2xs z-40 transition-opacity"
+        />
+      )}
+
       {/* Course Repository Slide-Out Side Menu Drawer */}
       <div
-        className={`fixed top-0 right-0 h-full w-80 sm:w-96 bg-white shadow-2xl border-l border-slate-200 z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${
+        className={`fixed top-0 right-0 h-full w-full sm:w-96 max-w-full bg-white shadow-2xl border-l border-slate-200 z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${
           isCatalogMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -546,7 +554,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
           <div className="flex items-center space-x-1">
             <button
               onClick={() => setIsAiChatOpen(!isAiChatOpen)}
-              className="p-1.5 text-indigo-300 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-1.5 text-indigo-300 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
               title="Open PockeTA Co-Pilot"
             >
               <MessageSquare className="w-4 h-4" />
@@ -556,14 +564,14 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
                 setStudyPlan(INITIAL_SEMESTER_PLANS);
                 localStorage.setItem('pocketa_study_plan_v3', JSON.stringify(INITIAL_SEMESTER_PLANS));
               }}
-              className="p-1.5 text-rose-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-1.5 text-rose-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
               title="Reset official plan"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
             <button
               onClick={() => setIsCatalogMenuOpen(false)}
-              className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
               title="Close menu"
             >
               <X className="w-4 h-4" />
@@ -759,7 +767,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
 
       {/* Collaborative AI Co-Pilot Drawer */}
       {isAiChatOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-96 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[500px]">
+        <div className="fixed bottom-3 right-3 sm:bottom-6 sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-96 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[480px]">
           <div className="bg-indigo-600 p-3.5 flex items-center justify-between text-white">
             <div className="flex items-center space-x-2">
               <Sparkles className="w-4 h-4 text-white animate-pulse" />
@@ -767,7 +775,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
             </div>
             <button
               onClick={() => setIsAiChatOpen(false)}
-              className="p-1 rounded text-white/80 hover:text-white"
+              className="p-1.5 rounded text-white/80 hover:text-white min-h-[32px] min-w-[32px] flex items-center justify-center"
             >
               <X className="w-4 h-4" />
             </button>

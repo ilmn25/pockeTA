@@ -166,8 +166,8 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased selection:bg-indigo-600 selection:text-white">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-20 right-6 z-50 flex items-center space-x-2 bg-indigo-600 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-xl border border-indigo-500 animate-slide-in">
-          <Sparkles className="w-4 h-4 text-amber-300" />
+        <div className="fixed top-16 right-3 left-3 sm:left-auto sm:right-6 sm:top-20 z-50 flex items-center space-x-2 bg-indigo-600 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-xl border border-indigo-500 animate-slide-in max-w-md">
+          <Sparkles className="w-4 h-4 text-amber-300 shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}

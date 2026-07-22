@@ -55,31 +55,31 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl text-slate-800">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+      <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl text-slate-800 max-h-[90vh] flex flex-col">
         {/* Modal Header */}
-        <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+        <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-200">
+            <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-200 shrink-0">
               <Target className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-extrabold text-slate-900">Record & Update Career Aspirations</h3>
-              <p className="text-xs text-slate-500">
+              <h3 className="text-base sm:text-lg font-extrabold text-slate-900">Record & Update Career Aspirations</h3>
+              <p className="text-[11px] sm:text-xs text-slate-500">
                 PockeTA uses your aspirations to personalize course descriptions and proactively guide your plan.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-5 overflow-y-auto flex-1">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
               Career Objectives & Aspirations Description

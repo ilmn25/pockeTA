@@ -326,26 +326,26 @@ export const JourneyDashboard: React.FC<JourneyDashboardProps> = ({
               }}
               className="relative flex items-center pt-3 border-t border-slate-100"
             >
-              <Search className="absolute left-4 w-5 h-5 text-slate-400" />
+              <Search className="absolute left-3.5 w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
               <input
                 id="advising-search-input"
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Ask PockeTA about prerequisites, electives, WIE placement, or study plans..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-28 py-3 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-inner"
+                placeholder="Ask PockeTA about prerequisites, electives..."
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 sm:pl-11 pr-20 sm:pr-24 py-2.5 sm:py-3 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-inner"
               />
               <button
                 id="ask-advising-btn"
                 type="submit"
                 disabled={isLoading || !query.trim()}
-                className="absolute right-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg shadow-sm transition-all disabled:opacity-40 flex items-center space-x-1.5 cursor-pointer"
+                className="absolute right-1.5 sm:right-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg shadow-sm transition-all disabled:opacity-40 flex items-center space-x-1 cursor-pointer min-h-[36px]"
               >
                 {isLoading ? (
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                 ) : (
                   <>
-                    <span>Send</span>
+                    <span>Ask</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </>
                 )}
