@@ -39,11 +39,12 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build
-        run: npm run build
-
       - name: Configure Pages
+        id: pages
         uses: actions/configure-pages@v5
+
+      - name: Build with base path
+        run: npx vite build --base=${{ steps.pages.outputs.base_path }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
