@@ -60,9 +60,6 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
         {/* Modal Header */}
         <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-200 shrink-0">
-              <Target className="w-5 h-5" />
-            </div>
             <div>
               <h3 className="text-base sm:text-lg font-extrabold text-slate-900">Record & Update Career Aspirations</h3>
               <p className="text-[11px] sm:text-xs text-slate-500">
@@ -104,21 +101,21 @@ export const GoalEditorModal: React.FC<GoalEditorModalProps> = ({
               <button
                 type="button"
                 onClick={() => handlePreset('Targeting an R&D career in AI-driven Medical Imaging & Bio-Healthcare Robotics. Aiming to build clinical-grade vision models after graduation.')}
-                className="text-xs bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 border border-slate-200 hover:border-indigo-200 rounded-lg px-2.5 py-1.5 transition-colors text-left font-medium"
+                className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-200 rounded-lg px-2.5 py-1.5 transition-colors text-left font-medium"
               >
                 🏥 Medical Imaging & Robotics
               </button>
               <button
                 type="button"
                 onClick={() => handlePreset('Pursuing Software Engineering in Autonomous Driving & Robotics Kinematics. Focused on C++, ROS2, and sensor fusion systems.')}
-                className="text-xs bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 border border-slate-200 hover:border-indigo-200 rounded-lg px-2.5 py-1.5 transition-colors text-left font-medium"
+                className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-200 rounded-lg px-2.5 py-1.5 transition-colors text-left font-medium"
               >
                 🤖 Autonomous Systems & ROS2
               </button>
               <button
                 type="button"
                 onClick={() => handlePreset('Aiming for a Postgraduate Master / PhD research position in Privacy-Preserving Deep Learning and Federated Cloud Infrastructure.')}
-                className="text-xs bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 border border-slate-200 hover:border-indigo-200 rounded-lg px-2.5 py-1.5 transition-colors text-left font-medium"
+                className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-200 rounded-lg px-2.5 py-1.5 transition-colors text-left font-medium"
               >
                 🎓 AI Postgraduate Research
               </button>

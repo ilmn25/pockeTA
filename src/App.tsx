@@ -109,7 +109,7 @@ export default function App() {
       id: 'sug_01',
       type: 'add',
       title: 'Add COMP3421: Web Application Design',
-      reason: 'Recommended elective for full-stack web architecture, React framework patterns, and RESTful APIs.',
+      reason: 'Perfectly aligns with your goal of Full-Stack Architecture. This course provides the React and RESTful API foundations required for your target role.',
       suggestedCourse: COURSE_CATALOG.find(c => c.code === 'COMP3421'),
       targetSemesterId: 'y4t2'
     },
@@ -117,7 +117,7 @@ export default function App() {
       id: 'sug_02',
       type: 'add',
       title: 'Add COMP4442: Service and Cloud Computing',
-      reason: 'Key elective for microservice architectures, Docker containerization, and scalable cloud systems.',
+      reason: 'Directly supports your aspiration for Cloud Security and Scalable Systems. Essential for the high-concurrency microservices mentioned in your target job.',
       suggestedCourse: COURSE_CATALOG.find(c => c.code === 'COMP4442'),
       targetSemesterId: 'y4t2'
     }

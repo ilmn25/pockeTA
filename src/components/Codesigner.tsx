@@ -37,14 +37,11 @@ export const Codesigner: React.FC<CodesignerProps> = ({
   return (
     <div className="flex flex-col h-[calc(100vh-140px)] max-h-[800px] bg-white border border-slate-200 rounded-3xl shadow-xl overflow-hidden animate-fade-in">
       {/* Header Section */}
-      <div className="bg-indigo-600 px-6 py-5 flex items-center justify-between text-white shrink-0">
+      <div className="bg-slate-900 px-6 py-5 flex items-center justify-between text-white shrink-0">
         <div className="flex items-center space-x-3">
-          <div className="p-2 bg-white/20 rounded-xl backdrop-blur-md">
-            <Sparkles className="w-5 h-5 text-white" />
-          </div>
           <div>
             <h2 className="text-lg font-extrabold tracking-tight">Capstone AI Codesigner</h2>
-            <p className="text-xs text-indigo-100 font-medium">Design your custom thesis topic and research strategy</p>
+            <p className="text-xs text-slate-400 font-medium">Design your custom thesis topic and research strategy</p>
           </div>
         </div>
         

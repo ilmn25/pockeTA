@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+@theme {
+  /* HK PolyU Brand Accent Palette (Lighter & More Magenta) */
+  --color-indigo-50: #fef2f6;
+  --color-indigo-100: #fce7f0;
+  --color-indigo-200: #fbcfe1;
+  --color-indigo-300: #f79bc3;
+  --color-indigo-400: #f069a6;
+  --color-indigo-500: #d62f6a;
+  --color-indigo-600: #B31B4D; /* Refined PolyU Accent */
+  --color-indigo-700: #94153f;
+  --color-indigo-800: #7a1436;
+  --color-indigo-900: #681531;
+  --color-indigo-950: #3f071a;
+}

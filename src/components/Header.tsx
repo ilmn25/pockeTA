@@ -22,14 +22,11 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center justify-between w-full sm:w-auto shrink-0">
             {/* Logo & Brand */}
             <div className="flex items-center space-x-2 shrink-0">
-              <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-sm">
-                <Sparkles className="w-4 h-4 text-white" />
-              </div>
               <div className="flex items-center space-x-2">
                 <span className="font-extrabold text-lg tracking-tight text-slate-900">
                   PockeTA
                 </span>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-600 border border-indigo-100 hidden md:inline-block">
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200 hidden md:inline-block">
                   Academic Advisor
                 </span>
               </div>
@@ -40,14 +37,14 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 id="header-goal-button-mobile"
                 onClick={onOpenGoalModal}
-                className="p-1.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-semibold flex items-center space-x-1"
+                className="p-1.5 bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold flex items-center space-x-1"
                 title="Update Aspirations"
               >
                 <Target className="w-3.5 h-3.5 text-indigo-600" />
                 <span className="text-[11px] max-w-[90px] truncate">{profile.keySkillsInterest[0] || 'Goals'}</span>
               </button>
 
-              <div className="w-7 h-7 rounded-full bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-xs">
+              <div className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 font-bold text-xs">
                 {profile.name.split(' ').map(n => n[0]).join('')}
               </div>
             </div>
@@ -58,9 +55,10 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               id="nav-tab-dashboard"
               onClick={() => setActiveTab('dashboard')}
+              disabled={activeTab === 'dashboard'}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap min-h-[36px] flex-1 sm:flex-initial justify-center ${
                 activeTab === 'dashboard'
-                  ? 'bg-white text-indigo-600 shadow-sm font-bold'
+                  ? 'bg-slate-900 text-white shadow-sm font-bold cursor-default pointer-events-none'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
               }`}
             >
@@ -71,9 +69,10 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               id="nav-tab-study-plan"
               onClick={() => setActiveTab('study-plan')}
+              disabled={activeTab === 'study-plan'}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap min-h-[36px] flex-1 sm:flex-initial justify-center ${
                 activeTab === 'study-plan'
-                  ? 'bg-white text-indigo-600 shadow-sm font-bold'
+                  ? 'bg-slate-900 text-white shadow-sm font-bold cursor-default pointer-events-none'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
               }`}
             >
@@ -84,9 +83,10 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               id="nav-tab-wie"
               onClick={() => setActiveTab('wie')}
+              disabled={activeTab === 'wie'}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap min-h-[36px] flex-1 sm:flex-initial justify-center ${
                 activeTab === 'wie'
-                  ? 'bg-white text-indigo-600 shadow-sm font-bold'
+                  ? 'bg-slate-900 text-white shadow-sm font-bold cursor-default pointer-events-none'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
               }`}
             >
@@ -97,9 +97,10 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               id="nav-tab-capstone"
               onClick={() => setActiveTab('capstone')}
+              disabled={activeTab === 'capstone'}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap min-h-[36px] flex-1 sm:flex-initial justify-center ${
                 activeTab === 'capstone'
-                  ? 'bg-white text-indigo-600 shadow-sm font-bold'
+                  ? 'bg-slate-900 text-white shadow-sm font-bold cursor-default pointer-events-none'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
               }`}
             >
@@ -123,7 +124,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             <div className="flex items-center space-x-2 pl-2 border-l border-slate-200">
-              <div className="w-7 h-7 rounded-full bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-xs">
+              <div className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 font-bold text-xs">
                 {profile.name.split(' ').map(n => n[0]).join('')}
               </div>
               <div className="text-left text-xs">

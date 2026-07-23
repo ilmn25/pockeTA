@@ -133,7 +133,6 @@ export const WieCapstoneSelection: React.FC<WieCapstoneSelectionProps> = ({
       <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-            <Award className="w-5 h-5 text-indigo-600 shrink-0" />
             <h2 className="text-lg sm:text-xl font-extrabold text-slate-900">
               {initialActiveSubTab === 'wie' ? 'Work-Integrated Education (WIE)' : 'Capstone Project Portfolio'}
             </h2>
@@ -151,9 +150,10 @@ export const WieCapstoneSelection: React.FC<WieCapstoneSelectionProps> = ({
             <button
               id="subtab-capstone-selection-btn"
               onClick={() => setActiveSubTab('selection')}
+              disabled={activeSubTab === 'selection'}
               className={`flex items-center justify-center space-x-1.5 px-3.5 sm:px-4 py-2 rounded-full text-xs font-bold transition-all flex-1 sm:flex-initial ${
                 activeSubTab === 'selection'
-                  ? 'bg-indigo-600 text-white shadow-sm'
+                  ? 'bg-slate-900 text-white shadow-sm cursor-default pointer-events-none'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -164,9 +164,10 @@ export const WieCapstoneSelection: React.FC<WieCapstoneSelectionProps> = ({
             <button
               id="subtab-capstone-codesigner-btn"
               onClick={() => setActiveSubTab('codesigner')}
+              disabled={activeSubTab === 'codesigner'}
               className={`flex items-center justify-center space-x-1.5 px-3.5 sm:px-4 py-2 rounded-full text-xs font-bold transition-all flex-1 sm:flex-initial ${
                 activeSubTab === 'codesigner'
-                  ? 'bg-indigo-600 text-white shadow-sm'
+                  ? 'bg-slate-900 text-white shadow-sm cursor-default pointer-events-none'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -245,7 +246,7 @@ export const WieCapstoneSelection: React.FC<WieCapstoneSelectionProps> = ({
                   <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
                     <div className="flex items-center justify-between text-xs font-bold text-slate-800">
                       <span className="uppercase tracking-wider text-[10px] text-slate-500">Related & Recommended Courses</span>
-                      <span className="text-[10px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded font-mono">
+                      <span className="text-[10px] text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded font-mono">
                         {pos.prerequisiteCourseCodes.length} Preparatory Subjects
                       </span>
                     </div>
@@ -256,7 +257,7 @@ export const WieCapstoneSelection: React.FC<WieCapstoneSelectionProps> = ({
                         return (
                           <div key={code} className="flex items-center justify-between bg-white border border-slate-200 p-2 rounded-lg text-xs">
                             <div className="flex items-center space-x-2">
-                              <span className="font-mono font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded text-[11px]">
+                              <span className="font-mono font-bold text-slate-700 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded text-[11px]">
                                 {code}
                               </span>
                               <span className="font-semibold text-slate-800">{title}</span>
@@ -301,9 +302,10 @@ export const WieCapstoneSelection: React.FC<WieCapstoneSelectionProps> = ({
                 <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-end">
                   <button
                     onClick={() => onSelectWie(pos.id)}
+                    disabled={isSelected}
                     className={`w-full py-2 rounded-xl text-xs font-bold transition-all ${
                       isSelected
-                        ? 'bg-emerald-600 text-white shadow-sm'
+                        ? 'bg-slate-900 text-white shadow-sm cursor-default pointer-events-none'
                         : 'bg-indigo-600 hover:bg-indigo-700 text-white'
                     }`}
                   >
@@ -437,9 +439,10 @@ export const WieCapstoneSelection: React.FC<WieCapstoneSelectionProps> = ({
                   <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-end">
                     <button
                       onClick={() => onSelectCapstone(cap.id)}
+                      disabled={isSelected}
                       className={`w-full py-2 rounded-xl text-xs font-bold transition-all ${
                         isSelected
-                          ? 'bg-emerald-600 text-white shadow-sm'
+                          ? 'bg-slate-900 text-white shadow-sm cursor-default pointer-events-none'
                           : 'bg-indigo-600 hover:bg-indigo-700 text-white'
                       }`}
                     >
@@ -504,14 +507,15 @@ export const WieCapstoneSelection: React.FC<WieCapstoneSelectionProps> = ({
                       key={dIdx}
                       type="button"
                       onClick={() => setSelectedDomain(domain)}
+                      disabled={selectedDomain === domain}
                       className={`p-3 rounded-xl border text-xs text-left font-semibold transition-all flex items-center justify-between cursor-pointer ${
                         selectedDomain === domain
-                          ? 'border-indigo-600 bg-indigo-50 text-indigo-900 ring-1 ring-indigo-500/30'
+                          ? 'border-slate-900 bg-slate-900 text-white cursor-default pointer-events-none'
                           : 'border-slate-200 hover:border-indigo-200 text-slate-700 bg-slate-50/50'
                       }`}
                     >
                       <span>{domain}</span>
-                      {selectedDomain === domain && <Check className="w-4 h-4 text-indigo-600 shrink-0" />}
+                      {selectedDomain === domain && <Check className="w-4 h-4 text-white shrink-0" />}
                     </button>
                   ))}
                 </div>

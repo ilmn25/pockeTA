@@ -230,18 +230,30 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
     return studyPlan.some(sem => sem.isCompleted && sem.courses.some(sc => sc.code === c.code));
   };
 
-  // Check if a course is Capstone
-  const isCapstoneCourse = (c: Course) => {
+  // Check if a course is Capstone or WIE (Excluded from general planner)
+  const isExcludedFromPlanner = (c: Course) => {
+    // Capstone checks
     if (c.category === 'Capstone') return true;
     if (c.code === 'COMP4913') return true;
     if (c.title.toLowerCase().includes('capstone')) return true;
+    
+    // WIE checks
+    if (c.category === 'WIE') return true;
+    if (c.code.includes('WIE')) return true;
+    if (c.title.toLowerCase().includes('work-integrated education')) return true;
+    
     return false;
   };
 
-  // Filter Catalog Courses (excludes capstone, includes selected & taken courses at the bottom)
+  // Helper to check if a course is recommended
+  const isRecommended = (courseCode: string) => {
+    return suggestions.some(sug => sug.id === courseCode || sug.title.includes(courseCode));
+  };
+
+  // Filter Catalog Courses (excludes capstone/WIE, includes selected & taken courses at the bottom)
   const filteredCatalog = catalog
     .filter(c => {
-      if (isCapstoneCourse(c)) return false;
+      if (isExcludedFromPlanner(c)) return false;
 
       const matchesSearch = c.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             c.title.toLowerCase().includes(searchTerm.toLowerCase());
@@ -251,10 +263,30 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
     .sort((a, b) => {
       const aSelected = isCourseTaken(a) || !!getPlannedSemester(a.code);
       const bSelected = isCourseTaken(b) || !!getPlannedSemester(b.code);
+      
+      // 1. Move selected/taken courses to the bottom
       if (!aSelected && bSelected) return -1;
       if (aSelected && !bSelected) return 1;
+      
+      // 2. For unselected courses, prioritize recommended ones
+      if (!aSelected && !bSelected) {
+        const aRecommended = isRecommended(a.code);
+        const bRecommended = isRecommended(b.code);
+        if (aRecommended && !bRecommended) return -1;
+        if (!aRecommended && bRecommended) return 1;
+      }
+      
       return 0;
     });
+
+  // Filter AI Suggestions (Hidden from view, used for logic)
+  const filteredSuggestions = suggestions.filter(sug => {
+    const course = sug.suggestedCourse || catalog.find(c => c.code === sug.id || sug.title.includes(c.code));
+    if (!course) return false;
+    const plannedSem = getPlannedSemester(course.code);
+    const taken = isCourseTaken(course);
+    return !(taken || !!plannedSem);
+  });
 
   return (
     <div className="space-y-8 animate-fade-in pb-16">
@@ -263,7 +295,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
           {[1, 2, 3, 4].map((yearNumber) => {
             const yearSemesters = studyPlan.filter((s) => s.year === yearNumber);
             const totalYearCredits = yearSemesters.reduce(
-              (sum, sem) => sum + sem.courses.reduce((cSum, c) => cSum + (isCapstoneCourse(c) ? 0 : c.credits), 0),
+              (sum, sem) => sum + sem.courses.reduce((cSum, c) => cSum + (isExcludedFromPlanner(c) ? 0 : c.credits), 0),
               0
             );
             const isYearCompleted = yearSemesters.every((s) => s.isCompleted);
@@ -298,8 +330,8 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
                 {/* Semesters Grid for Year {yearNumber} */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {yearSemesters.map((sem) => {
-              const termCredits = sem.courses.reduce((sum, c) => sum + (isCapstoneCourse(c) ? 0 : c.credits), 0);
-              const visibleCourses = sem.courses.filter(c => !isCapstoneCourse(c));
+              const termCredits = sem.courses.reduce((sum, c) => sum + (isExcludedFromPlanner(c) ? 0 : c.credits), 0);
+              const visibleCourses = sem.courses.filter(c => !isExcludedFromPlanner(c));
               const maxCredits = sem.term === 'Term 3' ? 9 : 21;
               const minCredits = sem.term === 'Term 3' ? 0 : 12;
               const isOverloaded = termCredits > maxCredits;
@@ -409,7 +441,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
                                           : course.grade.startsWith('C')
                                           ? 'text-amber-700 bg-amber-50'
                                           : course.grade === 'R'
-                                          ? 'text-indigo-700 bg-indigo-50'
+                                          ? 'text-slate-700 bg-slate-100 border border-slate-200'
                                           : 'text-slate-600 bg-slate-50'
                                       }`}>
                                         {course.grade}
@@ -535,9 +567,9 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
 
         {/* Filter & Search Controls */}
         <div className="p-4 border-b border-slate-100 bg-slate-50 space-y-3 shrink-0">
-          {/* Category Filters (Capstone & Taken removed) */}
+          {/* Category Filters (Capstone/WIE & Taken removed) */}
           <div className="flex flex-wrap gap-1">
-            {['ALL', 'Core', 'Elective', 'Common Core', 'WIE'].map((cat) => (
+            {['ALL', 'Core', 'Elective', 'Common Core'].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
@@ -565,70 +597,8 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
           </div>
         </div>
 
-        {/* Course Cards List (Draggable, Taken Courses Excluded, Capstone Excluded) */}
+        {/* Course Cards List (Draggable, Taken Courses Excluded, Capstone/WIE Excluded) */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          {/* AI Suggestions Section - Highlighted Draggable Items with Explanation */}
-          {suggestions.length > 0 && (
-            <div className="space-y-2.5 pb-3 border-b border-slate-200">
-              <div className="flex items-center space-x-1.5 px-0.5">
-                <Lightbulb className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                <h4 className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
-                  Course Recommendations
-                </h4>
-              </div>
-
-              {suggestions.map((sug) => {
-                const course = sug.suggestedCourse || catalog.find(c => c.code === sug.id || sug.title.includes(c.code));
-                const plannedSem = course ? getPlannedSemester(course.code) : null;
-                const taken = course ? isCourseTaken(course) : false;
-                const isSelectedOrTaken = taken || !!plannedSem;
-
-                return (
-                  <div
-                    key={sug.id}
-                    draggable={course && !isSelectedOrTaken ? true : false}
-                    onDragStart={(e) => course && !isSelectedOrTaken && handleDragStart(e, course, 'catalog')}
-                    className={`bg-white border-2 border-indigo-100 rounded-xl p-3 shadow-sm space-y-2 transition-all hover:border-indigo-300 ${
-                      isSelectedOrTaken
-                        ? 'opacity-60 cursor-not-allowed select-none'
-                        : 'cursor-grab active:cursor-grabbing'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-extrabold text-slate-900 flex items-center space-x-1.5">
-                        {course && !isSelectedOrTaken && (
-                          <GripVertical className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-                        )}
-                        <span>{sug.title}</span>
-                      </span>
-                    </div>
-
-                    <div className="text-[11px] text-slate-600 leading-relaxed italic">
-                      {sug.reason}
-                    </div>
-
-                    {course && !isSelectedOrTaken && (
-                      <div className="flex items-center justify-between pt-1.5 border-t border-slate-100 text-[10px]">
-                        <span className="text-slate-500 font-medium">
-                          Drag to plan
-                        </span>
-                        <span className="font-mono font-bold text-indigo-600">
-                          {course.credits} Cr
-                        </span>
-                      </div>
-                    )}
-
-                    {isSelectedOrTaken && (
-                      <div className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 p-1.5 rounded-lg text-center border border-emerald-100">
-                        ✓ Added to Plan ({plannedSem?.label.split(' ')[0]})
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
           {filteredCatalog.length === 0 ? (
             <div className="text-center py-12 text-xs text-slate-400 font-medium">
               No available courses found.
@@ -638,6 +608,8 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
               const plannedSem = getPlannedSemester(course.code);
               const taken = isCourseTaken(course);
               const isSelectedOrTaken = taken || !!plannedSem;
+              const recommended = isRecommended(course.code) && !isSelectedOrTaken;
+              const suggestionExplanation = suggestions.find(s => s.id === course.code || s.title.includes(course.code))?.reason;
 
               return (
                 <div
@@ -647,17 +619,25 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
                   className={`border rounded-xl p-3 transition-all relative ${
                     isSelectedOrTaken
                       ? 'bg-slate-100/80 border-slate-200 opacity-60 cursor-not-allowed select-none'
-                      : 'bg-slate-50 border-slate-200 cursor-grab active:cursor-grabbing hover:border-indigo-400 hover:bg-white hover:shadow-md group'
+                      : recommended
+                        ? 'bg-amber-50/30 border-amber-200 cursor-grab active:cursor-grabbing hover:border-amber-400 hover:bg-white hover:shadow-md group'
+                        : 'bg-slate-50 border-slate-200 cursor-grab active:cursor-grabbing hover:border-indigo-400 hover:bg-white hover:shadow-md group'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-1.5">
                       {!isSelectedOrTaken && (
-                        <GripVertical className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 shrink-0" />
+                        <GripVertical className={`w-3.5 h-3.5 shrink-0 ${recommended ? 'text-amber-400 group-hover:text-amber-600' : 'text-slate-400 group-hover:text-indigo-600'}`} />
                       )}
-                      <span className={`font-mono text-xs font-bold ${isSelectedOrTaken ? 'text-slate-500' : 'text-indigo-600'}`}>
+                      <span className={`font-mono text-xs font-bold ${isSelectedOrTaken ? 'text-slate-500' : recommended ? 'text-amber-700' : 'text-indigo-600'}`}>
                         {course.code}
                       </span>
+                      {recommended && (
+                        <span className="flex items-center space-x-1 text-[9px] font-black text-amber-700 bg-amber-100/50 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                          <Sparkles className="w-2.5 h-2.5" />
+                          <span>Recommended</span>
+                        </span>
+                      )}
                       {taken ? (
                         <span className="text-[10px] px-1.5 py-0.2 rounded font-semibold bg-slate-200 text-slate-700 border border-slate-300">
                           Taken ({course.grade || 'Passed'})
@@ -667,9 +647,11 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
                           Selected in {plannedSem.term}
                         </span>
                       ) : (
-                        <span className="text-[10px] px-1.5 py-0.2 rounded font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                          Available
-                        </span>
+                        !recommended && (
+                          <span className="text-[10px] px-1.5 py-0.2 rounded font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                            Available
+                          </span>
+                        )
                       )}
                     </div>
                     <span className="text-[10px] text-slate-600 bg-slate-200 px-1.5 py-0.5 rounded font-medium">
@@ -680,6 +662,14 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
                   <div className={`text-xs font-semibold mt-1 ${isSelectedOrTaken ? 'text-slate-500' : 'text-slate-800'}`}>
                     {course.title}
                   </div>
+
+                  {recommended && suggestionExplanation && (
+                    <div className="mt-2 pt-2 border-t border-amber-100/50">
+                      <p className="text-[10px] text-amber-900/60 font-medium italic leading-relaxed">
+                        {suggestionExplanation}
+                      </p>
+                    </div>
+                  )}
 
                   <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-slate-200/60">
                     <div className="text-[10px] text-slate-500 truncate max-w-[140px]">
@@ -695,7 +685,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
                           }
                         }}
                         defaultValue=""
-                        className="text-[10px] bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold border border-indigo-200 rounded px-1.5 py-0.5 outline-none cursor-pointer"
+                        className="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold border border-slate-200 rounded px-1.5 py-0.5 outline-none cursor-pointer"
                       >
                         <option value="" disabled>+ Add to...</option>
                         {studyPlan.filter(s => !s.isCompleted).map(s => (
@@ -735,7 +725,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({
                 <span className="block font-bold uppercase text-slate-400 text-[10px] tracking-wider mb-1">
                   PockeTA Personalized Career Match
                 </span>
-                <p className="bg-indigo-50 border border-indigo-200 p-3 rounded-xl text-indigo-900 leading-relaxed font-medium">
+                <p className="bg-slate-50 border border-slate-200 p-3 rounded-xl text-slate-800 leading-relaxed font-medium">
                   {personalizedMap[activeCourseModal.code]?.desc || activeCourseModal.standardDescription}
                 </p>
               </div>

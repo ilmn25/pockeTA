@@ -134,398 +134,286 @@ export const JourneyDashboard: React.FC<JourneyDashboardProps> = ({
 
   return (
     <div className="space-y-8 animate-fade-in pb-12">
-      {/* Hero Welcome Banner */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 shadow-sm relative overflow-hidden">
-        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Good morning, {profile.name}. 👋
-            </h1>
-            <div className="flex items-center space-x-2 text-xs text-slate-500 font-medium pt-1">
-              <GraduationCap className="w-4 h-4 text-indigo-600" />
-              <span>Department of Computing • {profile.major} ({profile.degreeName})</span>
-            </div>
-          </div>
-
-          {/* Upgraded Quick Metrics Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 w-full lg:w-auto shrink-0">
-            {/* Current Term Card */}
-            <div className="bg-gradient-to-br from-indigo-50/80 via-white to-slate-50 border border-indigo-200/90 rounded-2xl p-4 shadow-2xs space-y-1.5 min-w-[170px]">
-              <div className="flex items-center justify-between text-indigo-600">
-                <span className="text-[10px] uppercase tracking-wider text-slate-500 font-extrabold">
-                  Current Term
-                </span>
-                <span className="h-2 w-2 rounded-full bg-indigo-600"></span>
-              </div>
-              <div className="text-lg font-black text-slate-900 tracking-tight">
-                {profile.currentYearTerm}
-              </div>
-              <div className="text-[11px] font-bold text-indigo-700 bg-indigo-100/70 border border-indigo-200 px-2 py-0.5 rounded-md w-fit">
-                Active Enrolled Term
-              </div>
-            </div>
-
-            {/* Degree Progress Card */}
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 shadow-2xs space-y-1.5 min-w-[170px]">
-              <div className="flex items-center justify-between text-slate-500">
-                <span className="text-[10px] uppercase tracking-wider text-slate-500 font-extrabold">
-                  Degree Progress
-                </span>
-                <BookOpen className="w-3.5 h-3.5 text-indigo-600" />
-              </div>
-              <div className="text-lg font-black text-indigo-600 tracking-tight">
-                {profile.earnedCredits} <span className="text-xs font-normal text-slate-500">/ {profile.totalRequiredCredits} Credits</span>
-              </div>
-              {/* Progress Bar */}
-              <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-                <div
-                  className="bg-indigo-600 h-1.5 rounded-full"
-                  style={{ width: `${Math.min(100, Math.round((profile.earnedCredits / profile.totalRequiredCredits) * 100))}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Cumulative GPA Card */}
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 shadow-2xs space-y-1.5 min-w-[170px]">
-              <div className="flex items-center justify-between text-slate-500">
-                <span className="text-[10px] uppercase tracking-wider text-slate-500 font-extrabold">
-                  Cumulative GPA
-                </span>
-                <Award className="w-3.5 h-3.5 text-amber-500" />
-              </div>
-              <div className="text-lg font-black text-emerald-600 tracking-tight">
-                {profile.gpa.toFixed(2)} <span className="text-xs font-normal text-slate-400">/ 4.30</span>
-              </div>
-              <div className="text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md w-fit flex items-center space-x-1">
-                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                <span>Dean's Honor Roll</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Grid: Advising Chat Box + Career Aspirations Panel */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Hero Welcome Banner - Re-engineered for density */}
+      <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/50 rounded-full -mr-32 -mt-32 blur-3xl transition-all group-hover:bg-indigo-100/50" />
         
-        {/* Left 2 Cols: PockeTA AI Advising Chat Box & Conversation */}
-        <div className="lg:col-span-2">
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5 flex flex-col justify-between">
-            {/* Chat Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center space-x-2.5">
-                <div className="p-2 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-xl">
-                  <MessageSquare className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-extrabold text-slate-900 flex items-center space-x-2">
-                    <span>PockeTA AI Academic Advisor</span>
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Ask any questions about degree requirements, prerequisites, or study plans.
-                  </p>
+        <div className="relative z-10 flex flex-col gap-8">
+          {/* Top Section: Identity & Academic Stats */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-center space-x-4">
+              <div className="space-y-1">
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none">
+                  {profile.name}
+                </h1>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                  Department of Computing • {profile.major}
+                </p>
+              </div>
+            </div>
+
+            {/* Concise Integrated Stats (The "License" Info) */}
+            <div className="flex flex-wrap items-center gap-x-8 gap-y-4 px-6 py-4 bg-slate-50 rounded-2xl border border-slate-100">
+              <div className="space-y-0.5">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.1em]">GPA</span>
+                <div className="text-sm font-black text-slate-900 leading-none">{profile.gpa.toFixed(2)}</div>
+              </div>
+              <div className="space-y-0.5">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.1em]">Term</span>
+                <div className="text-sm font-black text-indigo-600 leading-none">{profile.currentYearTerm.split(' ')[0]} {profile.currentYearTerm.split(' ')[1]}</div>
+              </div>
+              <div className="space-y-0.5">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.1em]">Cohort</span>
+                <div className="text-sm font-black text-slate-900 leading-none">{profile.cohortYear}</div>
+              </div>
+              <div className="space-y-0.5">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.1em]">Progress</span>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm font-black text-slate-900 leading-none">{Math.round((profile.earnedCredits / profile.totalRequiredCredits) * 100)}%</span>
+                  <div className="w-12 h-1 bg-slate-200 rounded-full overflow-hidden">
+                    <div className="bg-indigo-500 h-full rounded-full" style={{ width: `${(profile.earnedCredits / profile.totalRequiredCredits) * 100}%` }} />
+                  </div>
                 </div>
               </div>
-              {messages.length > 0 && (
-                <button
-                  onClick={() => setMessages([])}
-                  className="text-xs text-slate-400 hover:text-slate-600 font-medium cursor-pointer"
-                  title="Clear chat history"
-                >
-                  Clear chat
-                </button>
-              )}
             </div>
-
-            {/* Chat Conversation Stream & Empty Suggestions */}
-            <div className="space-y-4 min-h-[320px] max-h-[460px] overflow-y-auto pr-1">
-              {messages.length === 0 ? (
-                <div className="py-6 text-center space-y-4">
-                  <div className="w-12 h-12 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
-                    <Sparkles className="w-6 h-6 text-indigo-600" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900">Start a Conversation with PockeTA</h4>
-                    <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
-                      Select one of the suggested inquiries below or type your question in the chat input.
-                    </p>
-                  </div>
-
-                  {/* Suggestions when empty */}
-                  <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-left max-w-xl mx-auto">
-                    {SAMPLE_ADVISING_QUESTIONS.map((q, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => handleAskQuestion(q)}
-                        className="p-3 bg-slate-50 hover:bg-indigo-50/70 border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-indigo-700 rounded-xl transition-all text-xs font-semibold leading-snug cursor-pointer flex items-center justify-between group"
-                      >
-                        <span>"{q}"</span>
-                        <ArrowRight className="w-3.5 h-3.5 text-indigo-600 shrink-0 ml-2 group-hover:translate-x-0.5 transition-transform" />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <>
-                  {messages.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`flex flex-col ${
-                        msg.sender === 'user' ? 'items-end' : 'items-start'
-                      } space-y-2`}
-                    >
-                      <div
-                        className={`max-w-2xl rounded-2xl p-4 text-sm leading-relaxed ${
-                          msg.sender === 'user'
-                            ? 'bg-indigo-600 text-white rounded-br-none shadow-sm'
-                            : 'bg-slate-50 text-slate-800 border border-slate-200 rounded-bl-none shadow-sm'
-                        }`}
-                      >
-                        {msg.sender === 'pocketa' && (
-                          <div className="flex items-center space-x-2 text-xs font-semibold text-indigo-600 mb-2 pb-1.5 border-b border-slate-200/60">
-                            <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-                            <span>PockeTA AI Advisor</span>
-                            <span className="text-[10px] text-slate-400 font-normal">
-                              • {msg.timestamp}
-                            </span>
-                          </div>
-                        )}
-
-                        <div className="whitespace-pre-line font-sans">
-                          {msg.content}
-                        </div>
-
-                        {/* Action Buttons if available */}
-                        {msg.suggestedActions && msg.suggestedActions.length > 0 && (
-                          <div className="mt-3 pt-3 border-t border-slate-200/60 flex flex-wrap gap-2">
-                            {msg.suggestedActions.map((act, aIdx) => (
-                              <button
-                                key={aIdx}
-                                onClick={() => handleActionClick(act)}
-                                className="flex items-center space-x-1.5 text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg transition-colors font-semibold cursor-pointer"
-                              >
-                                <span>{act.label}</span>
-                                <ArrowRight className="w-3 h-3 text-indigo-600" />
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-
-                  {/* Suggested questions at bottom if messages exist */}
-                  {messages.length < 3 && (
-                    <div className="pt-2 border-t border-slate-100 space-y-1.5">
-                      <span className="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 block">
-                        Suggested Inquiries:
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {SAMPLE_ADVISING_QUESTIONS.slice(0, 3).map((q, idx) => (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => handleAskQuestion(q)}
-                            className="text-[11px] bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 border border-slate-200 hover:border-indigo-200 px-2.5 py-1 rounded-lg transition-colors font-medium text-left cursor-pointer"
-                          >
-                            "{q}"
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {isLoading && (
-                <div className="flex items-center space-x-3 text-xs text-indigo-600 bg-indigo-50 p-3 rounded-xl border border-indigo-100 w-fit animate-pulse">
-                  <RefreshCw className="w-4 h-4 animate-spin text-indigo-600" />
-                  <span>PockeTA is analyzing degree requirements and career goals...</span>
-                </div>
-              )}
-            </div>
-
-            {/* Chat Input Box */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleAskQuestion();
-              }}
-              className="relative flex items-center pt-3 border-t border-slate-100"
-            >
-              <Search className="absolute left-3.5 w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
-              <input
-                id="advising-search-input"
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Ask PockeTA about prerequisites, electives..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 sm:pl-11 pr-20 sm:pr-24 py-2.5 sm:py-3 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-inner"
-              />
-              <button
-                id="ask-advising-btn"
-                type="submit"
-                disabled={isLoading || !query.trim()}
-                className="absolute right-1.5 sm:right-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg shadow-sm transition-all disabled:opacity-40 flex items-center space-x-1 cursor-pointer min-h-[36px]"
-              >
-                {isLoading ? (
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <>
-                    <span>Ask</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </>
-                )}
-              </button>
-            </form>
           </div>
-        </div>
 
-        {/* Right Col: Career Goals & Aspirations Record Card & Target Job */}
-        <div className="space-y-6">
-          {/* Target Job & Role Target Card */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center space-x-2">
-                <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg">
-                  <Briefcase className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Target Job</h3>
-                  <p className="text-[11px] text-slate-500">Career milestone target</p>
-                </div>
-              </div>
-              <button
-                id="edit-target-job-btn"
-                onClick={() => setIsTargetJobModalOpen(true)}
-                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors cursor-pointer flex items-center space-x-1 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-lg border border-indigo-200"
-              >
-                <Edit3 className="w-3.5 h-3.5" />
-                <span>Switch Role</span>
-              </button>
-            </div>
-
-            <div className="bg-gradient-to-r from-indigo-50/80 via-indigo-50/40 to-slate-50 border border-indigo-100 rounded-xl p-4 space-y-2">
+          {/* Bottom Section: Aspirations & Target Job */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 shadow-sm">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 bg-indigo-100/90 px-2 py-0.5 rounded">
-                  Target Role
+                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
+                  <Target className="w-3 h-3" />
+                  <span>Core Aspiration</span>
                 </span>
-                <span className="text-xs font-bold text-emerald-700 flex items-center space-x-1">
-                  <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>{profile.targetJobSalary || 'HKD 32,000 - 45,000 / mo'}</span>
-                </span>
+                <button onClick={onOpenGoalModal} className="text-[10px] font-bold text-indigo-600 hover:underline">Edit</button>
               </div>
-              <div className="text-base font-extrabold text-slate-900">
-                {profile.targetJob || 'Full-Stack AI Software Engineer'}
-              </div>
-              <p className="text-xs text-slate-600">
-                Primary Career Objective • Direct alignment with computing electives & capstone.
-              </p>
-            </div>
-
-            {/* Skill Alignment Match Bar */}
-            <div className="space-y-1.5 pt-1">
-              <div className="flex items-center justify-between text-xs font-bold">
-                <span className="text-slate-600">Skill Competency Alignment</span>
-                <span className="text-indigo-600 font-mono">88% Aligned</span>
-              </div>
-              <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                <div className="bg-indigo-600 h-2 rounded-full w-[88%]" />
-              </div>
-            </div>
-
-            <div>
-              <span className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
-                Required Core Competencies
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {(profile.targetJobSkills || ['Software Engineering', 'HCI & Web Architecture', 'Database Architecture', 'Machine Learning', 'Systems Security']).map((skill, idx) => (
-                  <span
-                    key={idx}
-                    className="text-xs bg-slate-50 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg font-medium flex items-center space-x-1"
-                  >
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                    <span>{skill}</span>
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Aspirations & Career Goals Card */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center space-x-2">
-                <Target className="w-5 h-5 text-indigo-600" />
-                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">My Aspirations</h3>
-              </div>
-              <button
-                id="edit-aspirations-btn"
-                onClick={onOpenGoalModal}
-                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors cursor-pointer"
-              >
-                Edit
-              </button>
-            </div>
-
-            <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 space-y-1.5">
-              <span className="block text-xs font-semibold text-slate-400">
-                Long-term Career & Core Motivation
-              </span>
-              <p className="text-sm font-bold text-slate-800 leading-relaxed">
+              <p className="text-sm font-bold text-slate-800 leading-relaxed italic">
                 "{profile.careerGoals}"
               </p>
-            </div>
-
-            <div>
-              <span className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-                Specialized Technical Focus Areas
-              </span>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-1.5 pt-1">
                 {profile.keySkillsInterest.map((skill, sIdx) => (
-                  <span
-                    key={sIdx}
-                    className="text-xs bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-md font-medium"
-                  >
+                  <span key={sIdx} className="text-[10px] bg-slate-50 text-slate-600 border border-slate-100 px-2 py-0.5 rounded-md font-bold uppercase">
                     {skill}
                   </span>
                 ))}
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 text-xs text-slate-500 space-y-2">
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3 shadow-lg shadow-slate-200">
               <div className="flex items-center justify-between">
-                <span>Personalized Course Mapping:</span>
-                <span className="text-emerald-600 font-semibold">Active & Synced</span>
+                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
+                  <Briefcase className="w-3 h-3" />
+                  <span>Target Career Milestone</span>
+                </span>
+                <button onClick={() => setIsTargetJobModalOpen(true)} className="text-[10px] font-bold text-indigo-400 hover:underline">Switch</button>
               </div>
-              <div className="flex items-center justify-between">
-                <span>Degree Specialization:</span>
-                <span className="text-slate-800 font-medium">Software & AI Engineering</span>
+              <div className="space-y-1">
+                <div className="text-base font-black text-white leading-tight">
+                  {profile.targetJob}
+                </div>
+                <div className="flex items-center space-x-2 text-[11px] font-bold text-slate-400">
+                  <TrendingUp className="w-3 h-3 text-indigo-500" />
+                  <span>{profile.targetJobSalary}</span>
+                </div>
+              </div>
+              <div className="pt-1 flex flex-wrap gap-1">
+                {profile.targetJobSkills?.slice(0, 3).map((skill, idx) => (
+                  <span key={idx} className="text-[9px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-bold uppercase border border-slate-700">
+                    {skill}
+                  </span>
+                ))}
               </div>
             </div>
-          </div>
-
-          {/* AI Banner Suggestion Card */}
-          <div className="bg-indigo-600 p-6 rounded-2xl shadow-lg text-white space-y-3">
-            <div className="flex items-center space-x-2">
-              <div className="w-5 h-5 bg-white/20 rounded flex items-center justify-center">
-                <Sparkles className="w-3.5 h-3.5 text-white" />
-              </div>
-              <span className="text-xs font-bold uppercase tracking-widest opacity-90">AI Suggestion</span>
-            </div>
-            <p className="text-sm font-medium leading-relaxed">
-              To align better with your target job as <span className="underline font-bold">{profile.targetJob || 'Full-Stack AI Software Engineer'}</span>, PockeTA suggests verifying elective 'COMP4432 Machine Learning' in Year 4.
-            </p>
-            <button
-              onClick={() => onNavigateTab('study-plan')}
-              className="w-full py-3 bg-white text-indigo-600 hover:bg-slate-50 rounded-xl text-xs font-bold uppercase tracking-wider shadow-sm transition-all cursor-pointer"
-            >
-              Update Study Plan
-            </button>
           </div>
         </div>
       </div>
+
+      {/* Main Grid: Advising Chat Box (Now full width or adapted) */}
+      <div className="grid grid-cols-1 gap-8">
+        
+        {/* PockeTA AI Advising Chat Box */}
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+          {/* Chat Header */}
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div className="flex items-center space-x-3">
+              <div className="p-2.5 bg-slate-100 text-indigo-600 border border-slate-200 rounded-2xl shadow-sm">
+                <MessageSquare className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-slate-900 tracking-tight">PockeTA AI Academic Advisor</h3>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Smart Degree Strategy Engine</p>
+              </div>
+            </div>
+            {messages.length > 0 && (
+              <button
+                onClick={() => setMessages([])}
+                className="text-xs text-slate-400 hover:text-slate-600 font-bold uppercase tracking-wider cursor-pointer"
+              >
+                Clear Conversation
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div className="lg:col-span-3">
+              {/* Chat Conversation Stream */}
+              <div className="space-y-6 min-h-[400px] max-h-[600px] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-slate-200">
+                {messages.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center text-center space-y-6">
+                    <div className="w-16 h-16 bg-slate-100 text-indigo-600 border border-slate-200 rounded-3xl flex items-center justify-center shadow-inner">
+                      <Sparkles className="w-8 h-8" />
+                    </div>
+                    <div className="space-y-2">
+                      <h4 className="text-lg font-black text-slate-900">Initiate Advisory Session</h4>
+                      <p className="text-sm text-slate-500 max-w-sm mx-auto font-medium">
+                        Consult your personalized AI advisor on prerequisites, career mapping, and graduation readiness.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl">
+                      {SAMPLE_ADVISING_QUESTIONS.map((q, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => handleAskQuestion(q)}
+                          className="p-4 bg-slate-50 hover:bg-white border border-slate-200 hover:border-indigo-400 text-slate-700 hover:text-indigo-700 rounded-2xl transition-all text-xs font-bold leading-snug cursor-pointer flex items-center justify-between group shadow-sm hover:shadow-md"
+                        >
+                          <span>"{q}"</span>
+                          <ArrowRight className="w-4 h-4 text-indigo-600 shrink-0 ml-3 opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {messages.map((msg) => (
+                      <div
+                        key={msg.id}
+                        className={`flex flex-col ${
+                          msg.sender === 'user' ? 'items-end' : 'items-start'
+                        } space-y-2`}
+                      >
+                        <div
+                          className={`max-w-[85%] sm:max-w-[75%] rounded-3xl p-5 text-sm leading-relaxed ${
+                            msg.sender === 'user'
+                              ? 'bg-slate-900 text-white rounded-br-none shadow-xl'
+                              : 'bg-slate-50 text-slate-800 border border-slate-200 rounded-bl-none shadow-sm'
+                          }`}
+                        >
+                          {msg.sender === 'pocketa' && (
+                            <div className="flex items-center space-x-2 text-[10px] font-black text-indigo-600 uppercase tracking-[0.1em] mb-3 pb-2 border-b border-slate-200/50">
+                              <Sparkles className="w-3.5 h-3.5" />
+                              <span>AI Advising Core</span>
+                              <span className="text-slate-400 font-bold ml-auto">{msg.timestamp}</span>
+                            </div>
+                          )}
+
+                          <div className="whitespace-pre-line font-medium leading-relaxed">
+                            {msg.content}
+                          </div>
+
+                          {msg.suggestedActions && msg.suggestedActions.length > 0 && (
+                            <div className="mt-4 pt-4 border-t border-slate-200/50 flex flex-wrap gap-2">
+                              {msg.suggestedActions.map((act, aIdx) => (
+                                <button
+                                  key={aIdx}
+                                  onClick={() => handleActionClick(act)}
+                                  className="flex items-center space-x-2 text-xs bg-white hover:bg-indigo-600 hover:text-white text-indigo-700 border border-indigo-200 px-4 py-2 rounded-xl transition-all font-bold cursor-pointer shadow-sm"
+                                >
+                                  <span>{act.label}</span>
+                                  <ArrowRight className="w-3.5 h-3.5" />
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {isLoading && (
+                      <div className="flex items-center space-x-3 text-xs font-bold text-indigo-600 bg-indigo-50 px-4 py-3 rounded-2xl border border-indigo-100 w-fit animate-pulse">
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span className="uppercase tracking-widest">PockeTA Processing...</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Chat Input Box */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleAskQuestion();
+                }}
+                className="mt-6 relative flex items-center"
+              >
+                <div className="absolute left-4 p-1.5 bg-slate-100 rounded-lg">
+                  <Search className="w-4 h-4 text-slate-500" />
+                </div>
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Ask about Year 4 electives, graduation credits, or WIE requirements..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-14 pr-24 py-4 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-inner"
+                />
+                <button
+                  type="submit"
+                  disabled={isLoading || !query.trim()}
+                  className="absolute right-2.5 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-200 transition-all disabled:opacity-40 flex items-center space-x-2"
+                >
+                  {isLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <span>Send</span>}
+                </button>
+              </form>
+            </div>
+
+            {/* AI Advisor Sidebar - Contextual Tips */}
+            <div className="hidden lg:block space-y-6 border-l border-slate-100 pl-8">
+              <div className="space-y-4">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Contextual Reminders</h4>
+                <div className="space-y-3">
+                  <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 space-y-2">
+                    <div className="flex items-center space-x-2 text-amber-700">
+                      <Lightbulb className="w-4 h-4" />
+                      <span className="text-xs font-black uppercase tracking-wider">Optimization</span>
+                    </div>
+                    <p className="text-[11px] font-bold text-amber-900/80 leading-relaxed">
+                      You haven't completed your WIE requirements. PockeTA suggests looking for internships in Year 3 Summer.
+                    </p>
+                  </div>
+                  
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2">
+                    <div className="flex items-center space-x-2 text-indigo-700">
+                      <Target className="w-4 h-4" />
+                      <span className="text-xs font-black uppercase tracking-wider">Goal Match</span>
+                    </div>
+                    <p className="text-[11px] font-bold text-slate-600 leading-relaxed">
+                      Your chosen elective 'COMP4421' perfectly aligns with your "{profile.targetJob}" target role.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-slate-100">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4">Quick Shortcuts</h4>
+                <div className="grid grid-cols-1 gap-2">
+                  <button onClick={() => onNavigateTab('study-plan')} className="flex items-center justify-between p-3 bg-slate-50 hover:bg-white border border-slate-100 rounded-xl transition-all group">
+                    <span className="text-[10px] font-bold text-slate-600 uppercase">Study Planner</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-indigo-600 transition-colors" />
+                  </button>
+                  <button onClick={() => onNavigateTab('wie-capstone')} className="flex items-center justify-between p-3 bg-slate-50 hover:bg-white border border-slate-100 rounded-xl transition-all group">
+                    <span className="text-[10px] font-bold text-slate-600 uppercase">Capstone Studio</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-indigo-600 transition-colors" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
 
       {/* Target Job Switcher / Editor Modal */}
       {isTargetJobModalOpen && (
@@ -560,6 +448,7 @@ export const JourneyDashboard: React.FC<JourneyDashboardProps> = ({
                     <div
                       key={pIdx}
                       onClick={() => {
+                        if (isCurrent) return;
                         setCustomJobTitle(preset.title);
                         setCustomJobSalary(preset.salary);
                         if (onUpdateProfile) {
@@ -571,24 +460,24 @@ export const JourneyDashboard: React.FC<JourneyDashboardProps> = ({
                         }
                         setIsTargetJobModalOpen(false);
                       }}
-                      className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
+                      className={`p-3.5 rounded-xl border transition-all flex items-center justify-between ${
                         isCurrent
-                          ? 'border-indigo-600 bg-indigo-50/70 ring-1 ring-indigo-500/30'
-                          : 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50'
+                          ? 'border-slate-900 bg-slate-900 text-white cursor-default pointer-events-none'
+                          : 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50 cursor-pointer'
                       }`}
                     >
                       <div className="space-y-1">
                         <div className="flex items-center space-x-2">
-                          <span className="font-bold text-sm text-slate-900">{preset.title}</span>
+                          <span className={`font-bold text-sm ${isCurrent ? 'text-white' : 'text-slate-900'}`}>{preset.title}</span>
                           {isCurrent && (
-                            <span className="text-[10px] bg-indigo-600 text-white font-bold px-2 py-0.5 rounded-full">
+                            <span className="text-[10px] bg-white/20 text-white font-bold px-2 py-0.5 rounded-full border border-white/20">
                               Active Target
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-slate-500">{preset.salary}</p>
+                        <p className={`text-xs ${isCurrent ? 'text-slate-300' : 'text-slate-500'}`}>{preset.salary}</p>
                       </div>
-                      <Check className={`w-4 h-4 ${isCurrent ? 'text-indigo-600' : 'text-slate-300'}`} />
+                      <Check className={`w-4 h-4 ${isCurrent ? 'text-white' : 'text-slate-300'}`} />
                     </div>
                   );
                 })}
